@@ -183,6 +183,16 @@ hljs.initHighlightingOnLoad();
 
 <p>The due date for this quiz is Sun 13 Apr 2014 4:30 PM PDT.</p>
 
+<p>Load packages.</p>
+
+<pre><code class="r">packages &lt;- c(&quot;data.table&quot;, &quot;xlsx&quot;, &quot;XML&quot;)
+sapply(packages, require, character.only = TRUE, quietly = TRUE)
+</code></pre>
+
+<pre><code>## data.table       xlsx        XML 
+##       TRUE       TRUE       TRUE
+</code></pre>
+
 <p>Fix URL reading for knitr. See <a href="http://stackoverflow.com/a/20003380">Stackoverflow</a>.</p>
 
 <pre><code class="r">setInternet2(TRUE)
@@ -202,17 +212,11 @@ hljs.initHighlightingOnLoad();
 
 <pre><code class="r">url &lt;- &quot;https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FPUMSDataDict06.pdf&quot;
 f &lt;- file.path(getwd(), &quot;PUMSDataDict06.pdf&quot;)
-download.file(url, f)
+download.file(url, f, mode = &quot;wb&quot;)
 url &lt;- &quot;https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv&quot;
 f &lt;- file.path(getwd(), &quot;ss06pid.csv&quot;)
 download.file(url, f)
-require(data.table)
-</code></pre>
-
-<pre><code>## Loading required package: data.table
-</code></pre>
-
-<pre><code class="r">dt &lt;- data.table(read.csv(f))
+dt &lt;- data.table(read.csv(f))
 setkey(dt, VAL)
 dt[, .N, key(dt)]
 </code></pre>
@@ -284,26 +288,53 @@ dt[, .N, key(dt)]
 
 <pre><code class="r">url &lt;- &quot;https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx&quot;
 f &lt;- file.path(getwd(), &quot;DATA.gov_NGAP.xlsx&quot;)
-download.file(url, f)
-require(xlsx)
-</code></pre>
-
-<pre><code>## Loading required package: xlsx
-## Loading required package: rJava
-</code></pre>
-
-<pre><code class="r">rows &lt;- 18:23
+download.file(url, f, mode = &quot;wb&quot;)
+rows &lt;- 18:23
 cols &lt;- 7:15
-dat &lt;- read.xlsx(f, colIndex = cols, rowIndex = rows)
+dat &lt;- read.xlsx(f, 1, colIndex = cols, rowIndex = rows)
+sum(dat$Zip * dat$Ext, na.rm = T)
 </code></pre>
 
-<pre><code>## Error: could not find function &quot;read.xlsx&quot;
+<pre><code>## [1] 36534720
 </code></pre>
 
-<pre><code class="r">sum(dat$Zip * dat$Ext, na.rm = T)
+<h2>Question 4</h2>
+
+<p>Read the XML data on Baltimore restaurants from here: </p>
+
+<p><a href="https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml">https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml</a></p>
+
+<p>How many restaurants have zipcode 21231?</p>
+
+<p>Use <code>http</code> instead of <code>https</code>, which caused the message <em>Error: XML content does not seem to be XML: &#39;<a href="https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml">https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml</a>&#39;</em>.</p>
+
+<pre><code class="r">url &lt;- &quot;http://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml&quot;
+doc &lt;- xmlInternalTreeParse(url)
+rootNode &lt;- xmlRoot(doc)
+names(rootNode)
 </code></pre>
 
-<pre><code>## Error: object &#39;dat&#39; not found
+<pre><code>##   row 
+## &quot;row&quot;
+</code></pre>
+
+<pre><code class="r"># names(rootNode[[1]])
+names(rootNode[[1]][[1]])
+</code></pre>
+
+<pre><code>##              name           zipcode      neighborhood   councildistrict 
+##            &quot;name&quot;         &quot;zipcode&quot;    &quot;neighborhood&quot; &quot;councildistrict&quot; 
+##    policedistrict        location_1 
+##  &quot;policedistrict&quot;      &quot;location_1&quot;
+</code></pre>
+
+<pre><code class="r">zipcode &lt;- xpathSApply(rootNode, &quot;//zipcode&quot;, xmlValue)
+table(zipcode == 21231)
+</code></pre>
+
+<pre><code>## 
+## FALSE  TRUE 
+##  1200   127
 </code></pre>
 
 </body>

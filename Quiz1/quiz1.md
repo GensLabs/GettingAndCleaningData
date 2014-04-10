@@ -3,6 +3,19 @@ Week 1 Quiz
 
 The due date for this quiz is Sun 13 Apr 2014 4:30 PM PDT.
 
+Load packages.
+
+
+```r
+packages <- c("data.table", "xlsx", "XML")
+sapply(packages, require, character.only = TRUE, quietly = TRUE)
+```
+
+```
+## data.table       xlsx        XML 
+##       TRUE       TRUE       TRUE
+```
+
 
 Fix URL reading for knitr. See [Stackoverflow](http://stackoverflow.com/a/20003380).
 
@@ -13,15 +26,16 @@ setInternet2(TRUE)
 
 
 
+
 Question 1
 ----------
 The American Community Survey distributes downloadable data about United States communities. Download the 2006 microdata survey about housing for the state of Idaho using download.file() from here: 
 
-[https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv)
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv
 
 and load the data into R. The code book, describing the variable names is here: 
 
-[https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FPUMSDataDict06.pdf](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FPUMSDataDict06.pdf)
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FPUMSDataDict06.pdf
 
 How many housing units in this survey were worth more than $1,000,000?
 
@@ -29,18 +43,10 @@ How many housing units in this survey were worth more than $1,000,000?
 ```r
 url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FPUMSDataDict06.pdf"
 f <- file.path(getwd(), "PUMSDataDict06.pdf")
-download.file(url, f)
+download.file(url, f, mode = "wb")
 url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
 f <- file.path(getwd(), "ss06pid.csv")
 download.file(url, f)
-require(data.table)
-```
-
-```
-## Loading required package: data.table
-```
-
-```r
 dt <- data.table(read.csv(f))
 setkey(dt, VAL)
 dt[, .N, key(dt)]
@@ -107,7 +113,7 @@ Question 3
 ----------
 Download the Excel spreadsheet on Natural Gas Aquisition Program here: 
 
-[https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx](https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx)
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx
 
 Read rows 18-23 and columns 7-15 into R and assign the result to a variable called:
 
@@ -117,36 +123,68 @@ What is the value of:
 
 `sum(dat$Zip*dat$Ext,na.rm=T)`
 
-(original data source: [http://catalog.data.gov/dataset/natural-gas-acquisition-program](http://catalog.data.gov/dataset/natural-gas-acquisition-program))
+(original data source: http://catalog.data.gov/dataset/natural-gas-acquisition-program)
 
 
 ```r
 url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx"
 f <- file.path(getwd(), "DATA.gov_NGAP.xlsx")
-download.file(url, f)
-require(xlsx)
-```
-
-```
-## Loading required package: xlsx
-## Loading required package: rJava
-```
-
-```r
+download.file(url, f, mode = "wb")
 rows <- 18:23
 cols <- 7:15
-dat <- read.xlsx(f, colIndex = cols, rowIndex = rows)
-```
-
-```
-## Error: could not find function "read.xlsx"
-```
-
-```r
+dat <- read.xlsx(f, 1, colIndex = cols, rowIndex = rows)
 sum(dat$Zip * dat$Ext, na.rm = T)
 ```
 
 ```
-## Error: object 'dat' not found
+## [1] 36534720
+```
+
+
+
+Question 4
+----------
+Read the XML data on Baltimore restaurants from here: 
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml
+
+How many restaurants have zipcode 21231?
+
+Use `http` instead of `https`, which caused the message *Error: XML content does not seem to be XML: 'https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml'*.
+
+
+```r
+url <- "http://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml"
+doc <- xmlInternalTreeParse(url)
+rootNode <- xmlRoot(doc)
+names(rootNode)
+```
+
+```
+##   row 
+## "row"
+```
+
+```r
+# names(rootNode[[1]])
+names(rootNode[[1]][[1]])
+```
+
+```
+##              name           zipcode      neighborhood   councildistrict 
+##            "name"         "zipcode"    "neighborhood" "councildistrict" 
+##    policedistrict        location_1 
+##  "policedistrict"      "location_1"
+```
+
+```r
+zipcode <- xpathSApply(rootNode, "//zipcode", xmlValue)
+table(zipcode == 21231)
+```
+
+```
+## 
+## FALSE  TRUE 
+##  1200   127
 ```
 
