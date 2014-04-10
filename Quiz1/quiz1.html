@@ -214,7 +214,7 @@ sapply(packages, require, character.only = TRUE, quietly = TRUE)
 f &lt;- file.path(getwd(), &quot;PUMSDataDict06.pdf&quot;)
 download.file(url, f, mode = &quot;wb&quot;)
 url &lt;- &quot;https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv&quot;
-f &lt;- file.path(getwd(), &quot;ss06pid.csv&quot;)
+f &lt;- file.path(getwd(), &quot;ss06hid.csv&quot;)
 download.file(url, f)
 dt &lt;- data.table(read.csv(f))
 setkey(dt, VAL)
@@ -335,6 +335,106 @@ table(zipcode == 21231)
 <pre><code>## 
 ## FALSE  TRUE 
 ##  1200   127
+</code></pre>
+
+<h2>Question 5</h2>
+
+<p>The American Community Survey distributes downloadable data about United States communities. Download the 2006 microdata survey about housing for the state of Idaho using download.file() from here: </p>
+
+<p><a href="https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv">https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv</a> </p>
+
+<p>using the <code>fread()</code> command load the data into an R object</p>
+
+<p><code>DT</code> </p>
+
+<p>Which of the following is the fastest way to calculate the average value of the variable</p>
+
+<p><code>pwgtp15</code></p>
+
+<p>broken down by sex using the <code>data.table</code> package?</p>
+
+<pre><code class="r">url &lt;- &quot;https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv&quot;
+f &lt;- file.path(getwd(), &quot;ss06pid.csv&quot;)
+download.file(url, f)
+DT &lt;- fread(f)
+check &lt;- function(y, t) {
+    message(sprintf(&quot;Elapsed time: %.10f&quot;, t[3]))
+    print(y)
+}
+t &lt;- system.time(y &lt;- sapply(split(DT$pwgtp15, DT$SEX), mean))
+check(y, t)
+</code></pre>
+
+<pre><code>## Elapsed time: 0.0000000000
+</code></pre>
+
+<pre><code>##     1     2 
+## 99.81 96.67
+</code></pre>
+
+<pre><code class="r">t &lt;- system.time(y &lt;- mean(DT$pwgtp15, by = DT$SEX))
+check(y, t)
+</code></pre>
+
+<pre><code>## Elapsed time: 0.0000000000
+</code></pre>
+
+<pre><code>## [1] 98.22
+</code></pre>
+
+<pre><code class="r">t &lt;- system.time(y &lt;- DT[, mean(pwgtp15), by = SEX])
+check(y, t)
+</code></pre>
+
+<pre><code>## Elapsed time: 0.0000000000
+</code></pre>
+
+<pre><code>##    SEX    V1
+## 1:   1 99.81
+## 2:   2 96.67
+</code></pre>
+
+<pre><code class="r">t &lt;- system.time(y &lt;- rowMeans(DT)[DT$SEX == 1]) + system.time(rowMeans(DT)[DT$SEX == 
+    2])
+</code></pre>
+
+<pre><code>## Error: &#39;x&#39; must be numeric
+</code></pre>
+
+<pre><code>## Timing stopped at: 1.76 0 1.76
+</code></pre>
+
+<pre><code class="r">check(y, t)
+</code></pre>
+
+<pre><code>## Elapsed time: 0.0000000000
+</code></pre>
+
+<pre><code>##    SEX    V1
+## 1:   1 99.81
+## 2:   2 96.67
+</code></pre>
+
+<pre><code class="r">t &lt;- system.time(y &lt;- mean(DT[DT$SEX == 1, ]$pwgtp15)) + system.time(mean(DT[DT$SEX == 
+    2, ]$pwgtp15))
+check(y, t)
+</code></pre>
+
+<pre><code>## Elapsed time: 0.0400000000
+</code></pre>
+
+<pre><code>## [1] 99.81
+</code></pre>
+
+<pre><code class="r">t &lt;- system.time(y &lt;- tapply(DT$pwgtp15, DT$SEX, mean))
+check(y, t)
+</code></pre>
+
+<pre><code>## Elapsed time: 0.0200000000
+</code></pre>
+
+<pre><code>##     1     2 
+## 99.81 96.67
 </code></pre>
 
 </body>

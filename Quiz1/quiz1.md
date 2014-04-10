@@ -45,7 +45,7 @@ url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FPUMSDataDict06.pd
 f <- file.path(getwd(), "PUMSDataDict06.pdf")
 download.file(url, f, mode = "wb")
 url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
-f <- file.path(getwd(), "ss06pid.csv")
+f <- file.path(getwd(), "ss06hid.csv")
 download.file(url, f)
 dt <- data.table(read.csv(f))
 setkey(dt, VAL)
@@ -186,5 +186,129 @@ table(zipcode == 21231)
 ## 
 ## FALSE  TRUE 
 ##  1200   127
+```
+
+
+
+Question 5
+----------
+The American Community Survey distributes downloadable data about United States communities. Download the 2006 microdata survey about housing for the state of Idaho using download.file() from here: 
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv 
+
+using the `fread()` command load the data into an R object
+
+`DT` 
+
+Which of the following is the fastest way to calculate the average value of the variable
+
+`pwgtp15`
+
+broken down by sex using the `data.table` package?
+
+
+```r
+url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv"
+f <- file.path(getwd(), "ss06pid.csv")
+download.file(url, f)
+DT <- fread(f)
+check <- function(y, t) {
+    message(sprintf("Elapsed time: %.10f", t[3]))
+    print(y)
+}
+t <- system.time(y <- sapply(split(DT$pwgtp15, DT$SEX), mean))
+check(y, t)
+```
+
+```
+## Elapsed time: 0.0000000000
+```
+
+```
+##     1     2 
+## 99.81 96.67
+```
+
+```r
+t <- system.time(y <- mean(DT$pwgtp15, by = DT$SEX))
+check(y, t)
+```
+
+```
+## Elapsed time: 0.0000000000
+```
+
+```
+## [1] 98.22
+```
+
+```r
+t <- system.time(y <- DT[, mean(pwgtp15), by = SEX])
+check(y, t)
+```
+
+```
+## Elapsed time: 0.0000000000
+```
+
+```
+##    SEX    V1
+## 1:   1 99.81
+## 2:   2 96.67
+```
+
+```r
+t <- system.time(y <- rowMeans(DT)[DT$SEX == 1]) + system.time(rowMeans(DT)[DT$SEX == 
+    2])
+```
+
+```
+## Error: 'x' must be numeric
+```
+
+```
+## Timing stopped at: 1.76 0 1.76
+```
+
+```r
+check(y, t)
+```
+
+```
+## Elapsed time: 0.0000000000
+```
+
+```
+##    SEX    V1
+## 1:   1 99.81
+## 2:   2 96.67
+```
+
+```r
+t <- system.time(y <- mean(DT[DT$SEX == 1, ]$pwgtp15)) + system.time(mean(DT[DT$SEX == 
+    2, ]$pwgtp15))
+check(y, t)
+```
+
+```
+## Elapsed time: 0.0400000000
+```
+
+```
+## [1] 99.81
+```
+
+```r
+t <- system.time(y <- tapply(DT$pwgtp15, DT$SEX, mean))
+check(y, t)
+```
+
+```
+## Elapsed time: 0.0200000000
+```
+
+```
+##     1     2 
+## 99.81 96.67
 ```
 
