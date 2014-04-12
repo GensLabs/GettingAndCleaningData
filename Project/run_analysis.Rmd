@@ -209,17 +209,43 @@ dt$activityName <- factor(dt$activityName)
 dt$featureName <- factor(dt$featureName)
 ```
 
-List feature names. **TO-DO add multiple factor variables for features**
+Seperate features from `featureName` using the helper function `grepthis`.
 
 ```{r}
-dt[, .N, by="featureName"]
+grepthis <- function (regex) {
+  grepl(regex, dt$featureName)
+}
+## Features with 2 categories
+n <- 2
+y <- matrix(seq(1, n), nrow=n)
+x <- matrix(c(grepthis("^t"), grepthis("^f")), ncol=nrow(y))
+dt$domain <- factor(x %*% y, labels=c("Time", "Freq"))
+x <- matrix(c(grepthis("Acc"), grepthis("Gyro")), ncol=nrow(y))
+dt$instrument <- factor(x %*% y, labels=c("Accelerometer", "Gyroscope"))
+x <- matrix(c(grepthis("BodyAcc"), grepthis("GravityAcc")), ncol=nrow(y))
+dt$acceleration <- factor(x %*% y, labels=c(NA, "Body", "Gravity"))
+x <- matrix(c(grepthis("mean()"), grepthis("std()")), ncol=nrow(y))
+dt$variable <- factor(x %*% y, labels=c("Mean", "SD"))
+## Features with 1 category
+dt$jerk <- factor(grepthis("Jerk"), labels=c(NA, "Jerk"))
+dt$magnitude <- factor(grepthis("Mag"), labels=c(NA, "Magnitude"))
+## Features with 3 categories
+n <- 3
+y <- matrix(seq(1, n), nrow=n)
+x <- matrix(c(grepthis("-X"), grepthis("-Y"), grepthis("-Z")), ncol=nrow(y))
+dt$axis <- factor(x %*% y, labels=c(NA, "X", "Y", "Z"))
 ```
 
 Check.
 
 ```{r}
-dt
+r1 <- nrow(dt[, .N, by=c("featureName")])
+r2 <- nrow(dt[, .N, by=c("domain", "acceleration", "instrument", "jerk", "magnitude", "variable", "axis")])
+r1 == r2
 ```
+
+Yes, I accounted for all possible combinations. `featureName` is now redundant.
+
 
 
 Create a tidy data set
@@ -228,7 +254,7 @@ Create a tidy data set
 Create a data set with the average of each variable for each activity and each subject.
 
 ```{r}
-setkey(dt, subject, activityName, featureName)
+setkey(dt, subject, activityName, domain, acceleration, instrument, jerk, magnitude, variable, axis)
 dtTidy <- dt[, list(count = .N, average = mean(value)), by=key(dt)]
 ```
 
@@ -254,7 +280,13 @@ Variable name | Description
 --------------|------------
 subject       | ID the subject who performed the activity for each window sample. Its range is from 1 to 30.
 activityName  | Activity name
-featureName   | Feature name
+domain        | Time domain signal or frequency domain signal (Time or Freq)
+instrument    | Measuring instrument (Accelerometer or Gyroscope)
+acceleration  | Acceleration signal (Body or Gravity)
+variable      | Variable (Mean or SD)
+jerk          | Jerk signal
+magnitude     | Magnitude of the signals calculated using the Euclidean norm
+axis          | 3-axial signals in the X, Y and Z directions (X, Y, or Z)
 count         | Count of data points used to compute `average`
 average       | Average of each variable for each activity and each subject
 
@@ -280,4 +312,10 @@ Summary of variables.
 
 ```{r}
 summary(dtTidy)
+```
+
+List all possible combinations of features.
+
+```{r}
+dtTidy[, .N, by=c("domain", "acceleration", "instrument", "jerk", "magnitude", "variable", "axis")]
 ```
