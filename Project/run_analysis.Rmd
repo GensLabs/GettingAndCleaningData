@@ -1,6 +1,10 @@
 run_analysis
 ============
-Last updated `r paste(Sys.time())` using `r R.version$version.string`.
+Last updated `r as.character(Sys.time())` using `r R.version$version.string`.
+
+
+Instructions for project
+------------------------
 
 > The purpose of this project is to demonstrate your ability to collect, work with, and clean a data set. The goal is to prepare tidy data that can be used for later analysis. You will be graded by your peers on a series of yes/no questions related to the project. You will be required to submit: 1) a tidy data set as described below, 2) a link to a Github repository with your script for performing the analysis, and 3) a code book that describes the variables, the data, and any transformations or work that you performed to clean up the data called CodeBook.md. You should also include a README.md in the repo with your scripts. This repo explains how all of the scripts work and how they are connected.  
 > 
@@ -95,7 +99,7 @@ dtActivityTest  <- fread(file.path(pathIn, "test" , "Y_test.txt" ))
 
 Read the data files. `fread` seems to be giving me some trouble reading files. Using a helper function, read the file with `read.table` instead, then convert the resulting data frame to a data table. Return the data table.
 
-```{r}
+```{r fileToDataTable}
 fileToDataTable <- function (f) {
 	df <- read.table(f)
 	dt <- data.table(df)
@@ -202,49 +206,50 @@ Merge activity name.
 dt <- merge(dt, dtFeatures[, list(featureNum, featureCode, featureName)], by="featureCode", all.x=TRUE)
 ```
 
-Set `activityName` and `featureName` as factors.
+Create a new variable, `activity` that is equivalent to `activityName` as a factor class.
+Create a new variable, `feature` that is equivalent to `featureName` as a factor class.
 
 ```{r}
-dt$activityName <- factor(dt$activityName)
-dt$featureName <- factor(dt$featureName)
+dt$activity <- factor(dt$activityName)
+dt$feature <- factor(dt$featureName)
 ```
 
 Seperate features from `featureName` using the helper function `grepthis`.
 
-```{r}
+```{r grepthis}
 grepthis <- function (regex) {
-  grepl(regex, dt$featureName)
+  grepl(regex, dt$feature)
 }
 ## Features with 2 categories
 n <- 2
 y <- matrix(seq(1, n), nrow=n)
 x <- matrix(c(grepthis("^t"), grepthis("^f")), ncol=nrow(y))
-dt$domain <- factor(x %*% y, labels=c("Time", "Freq"))
+dt$featDomain <- factor(x %*% y, labels=c("Time", "Freq"))
 x <- matrix(c(grepthis("Acc"), grepthis("Gyro")), ncol=nrow(y))
-dt$instrument <- factor(x %*% y, labels=c("Accelerometer", "Gyroscope"))
+dt$featInstrument <- factor(x %*% y, labels=c("Accelerometer", "Gyroscope"))
 x <- matrix(c(grepthis("BodyAcc"), grepthis("GravityAcc")), ncol=nrow(y))
-dt$acceleration <- factor(x %*% y, labels=c(NA, "Body", "Gravity"))
+dt$featAcceleration <- factor(x %*% y, labels=c(NA, "Body", "Gravity"))
 x <- matrix(c(grepthis("mean()"), grepthis("std()")), ncol=nrow(y))
-dt$variable <- factor(x %*% y, labels=c("Mean", "SD"))
+dt$featVariable <- factor(x %*% y, labels=c("Mean", "SD"))
 ## Features with 1 category
-dt$jerk <- factor(grepthis("Jerk"), labels=c(NA, "Jerk"))
-dt$magnitude <- factor(grepthis("Mag"), labels=c(NA, "Magnitude"))
+dt$featJerk <- factor(grepthis("Jerk"), labels=c(NA, "Jerk"))
+dt$featMagnitude <- factor(grepthis("Mag"), labels=c(NA, "Magnitude"))
 ## Features with 3 categories
 n <- 3
 y <- matrix(seq(1, n), nrow=n)
 x <- matrix(c(grepthis("-X"), grepthis("-Y"), grepthis("-Z")), ncol=nrow(y))
-dt$axis <- factor(x %*% y, labels=c(NA, "X", "Y", "Z"))
+dt$featAxis <- factor(x %*% y, labels=c(NA, "X", "Y", "Z"))
 ```
 
-Check.
+Check to make sure all possible combinations of `feature` are accounted for by all possible combinations of the factor class variables.
 
 ```{r}
-r1 <- nrow(dt[, .N, by=c("featureName")])
-r2 <- nrow(dt[, .N, by=c("domain", "acceleration", "instrument", "jerk", "magnitude", "variable", "axis")])
+r1 <- nrow(dt[, .N, by=c("feature")])
+r2 <- nrow(dt[, .N, by=c("featDomain", "featAcceleration", "featInstrument", "featJerk", "featMagnitude", "featVariable", "featAxis")])
 r1 == r2
 ```
 
-Yes, I accounted for all possible combinations. `featureName` is now redundant.
+Yes, I accounted for all possible combinations. `feature` is now redundant.
 
 
 
@@ -254,7 +259,7 @@ Create a tidy data set
 Create a data set with the average of each variable for each activity and each subject.
 
 ```{r}
-setkey(dt, subject, activityName, domain, acceleration, instrument, jerk, magnitude, variable, axis)
+setkey(dt, subject, activity, featDomain, featAcceleration, featInstrument, featJerk, featMagnitude, featVariable, featAxis)
 dtTidy <- dt[, list(count = .N, average = mean(value)), by=key(dt)]
 ```
 
@@ -264,7 +269,7 @@ Save to file
 
 Save data table objects to an RData file.
 
-```{r}
+```{r save}
 f <- file.path(path, "project.RData")
 save(dt, dtTidy, file=f)
 ```
@@ -272,50 +277,57 @@ save(dt, dtTidy, file=f)
 --------------------------------------------------------------------------------
 
 Codebook
---------
+========
+Codebook was generated on `r as.character(Sys.time())` during the same process that generated the dataset. See `run_analysis.md` or `run_analysis.html` for details on dataset creation.
 
-Variable list and descriptions.
+Variable list and descriptions
+------------------------------
 
-Variable name | Description
---------------|------------
-subject       | ID the subject who performed the activity for each window sample. Its range is from 1 to 30.
-activityName  | Activity name
-domain        | Time domain signal or frequency domain signal (Time or Freq)
-instrument    | Measuring instrument (Accelerometer or Gyroscope)
-acceleration  | Acceleration signal (Body or Gravity)
-variable      | Variable (Mean or SD)
-jerk          | Jerk signal
-magnitude     | Magnitude of the signals calculated using the Euclidean norm
-axis          | 3-axial signals in the X, Y and Z directions (X, Y, or Z)
-count         | Count of data points used to compute `average`
-average       | Average of each variable for each activity and each subject
+Variable name    | Description
+-----------------|------------
+subject          | ID the subject who performed the activity for each window sample. Its range is from 1 to 30.
+activity         | Activity name
+featDomain       | Feature: Time domain signal or frequency domain signal (Time or Freq)
+featInstrument   | Feature: Measuring instrument (Accelerometer or Gyroscope)
+featAcceleration | Feature: Acceleration signal (Body or Gravity)
+featVariable     | Feature: Variable (Mean or SD)
+featJerk         | Feature: Jerk signal
+featMagnitude    | Feature: Magnitude of the signals calculated using the Euclidean norm
+featAxis         | Feature: 3-axial signals in the X, Y and Z directions (X, Y, or Z)
+featCount        | Feature: Count of data points used to compute `average`
+featAverage      | Feature: Average of each variable for each activity and each subject
 
-Dataset structure.
+Dataset structure
+-----------------
 
 ```{r}
 str(dtTidy)
 ```
 
-List the key variables in the data table.
+List the key variables in the data table
+----------------------------------------
 
 ```{r}
 key(dtTidy)
 ```
 
-Show a few rows of the dataset.
+Show a few rows of the dataset
+------------------------------
 
 ```{r}
 dtTidy
 ```
 
-Summary of variables.
+Summary of variables
+--------------------
 
 ```{r}
 summary(dtTidy)
 ```
 
-List all possible combinations of features.
+List all possible combinations of features
+------------------------------------------
 
 ```{r}
-dtTidy[, .N, by=c("domain", "acceleration", "instrument", "jerk", "magnitude", "variable", "axis")]
+dtTidy[, .N, by=c(names(dtTidy)[grep("^feat", names(dtTidy))])]
 ```
