@@ -22,7 +22,7 @@ Last updated `r paste(Sys.time())` using `r R.version$version.string`.
 > 
 > Good luck!
 
-The codebook is at the end of this document.
+**The codebook is at the end of this document.**
 
 
 Preliminaries
@@ -73,6 +73,8 @@ list.files(pathIn, recursive=TRUE)
 
 **See the `README.txt` file in `r path` for detailed information on the dataset.**
 
+For the purposes of this project, the files in the `Inertial Signals` folders are not used.
+
 
 Read the files
 --------------
@@ -91,7 +93,7 @@ dtActivityTrain <- fread(file.path(pathIn, "train", "Y_train.txt"))
 dtActivityTest  <- fread(file.path(pathIn, "test" , "Y_test.txt" ))
 ```
 
-Read the data files. `fread` seems to be giving me some trouble reading files. Use `read.table` instead, then convert the resulting data frame to data table.
+Read the data files. `fread` seems to be giving me some trouble reading files. Using a helper function, read the file with `read.table` instead, then convert the resulting data frame to a data table. Return the data table.
 
 ```{r}
 fileToDataTable <- function (f) {
@@ -112,7 +114,7 @@ Concatenate the data tables.
 dtSubject <- rbind(dtSubjectTrain, dtSubjectTest)
 setnames(dtSubject, "V1", "subject")
 dtActivity <- rbind(dtActivityTrain, dtActivityTest)
-setnames(dtActivity, "V1", "activity")
+setnames(dtActivity, "V1", "activityNum")
 dt <- rbind(dtTrain, dtTest)
 ```
 
@@ -126,7 +128,7 @@ dt <- cbind(dtSubject, dt)
 Set key.
 
 ```{r}
-setkey(dt, subject, activity)
+setkey(dt, subject, activityNum)
 ```
 
 
@@ -137,7 +139,7 @@ Read the `features.txt` file. This tells which variables in `dt` are measurement
 
 ```{r}
 dtFeatures <- fread(file.path(pathIn, "features.txt"))
-setnames(dtFeatures, names(dtFeatures), c("colNum", "featureName"))
+setnames(dtFeatures, names(dtFeatures), c("featureNum", "featureName"))
 ```
 
 Subset only measurements for the mean and standard deviation.
@@ -149,15 +151,15 @@ dtFeatures <- dtFeatures[grepl("mean\\(\\)|std\\(\\)", featureName)]
 Convert the column numbers to a vector of variable names matching columns in `dt`.
 
 ```{r}
-dtFeatures$variable <- dtFeatures[, paste0("V", colNum)]
+dtFeatures$featureCode <- dtFeatures[, paste0("V", featureNum)]
 head(dtFeatures)
-dtFeatures$variable
+dtFeatures$featureCode
 ```
 
 Subset these variables using variable names.
 
 ```{r}
-select <- c(key(dt), dtFeatures$variable)
+select <- c(key(dt), dtFeatures$featureCode)
 dt <- dt[, select, with=FALSE]
 ```
 
@@ -165,11 +167,11 @@ dt <- dt[, select, with=FALSE]
 Use descriptive activity names
 ------------------------------
 
-Read `activity_labels.txt` file.
+Read `activity_labels.txt` file. This will be used to add descriptive names to the activities.
 
 ```{r}
-dtActivityLabels <- fread(file.path(pathIn, "activity_labels.txt"))
-setnames(dtActivityLabels, names(dtActivityLabels), c("activity", "activityLabel"))
+dtActivityNames <- fread(file.path(pathIn, "activity_labels.txt"))
+setnames(dtActivityNames, names(dtActivityNames), c("activityNum", "activityName"))
 ```
 
 
@@ -179,25 +181,38 @@ Label with descriptive activity names
 Merge activity labels.
 
 ```{r}
-dt <- merge(dt, dtActivityLabels, by="activity", all.x=TRUE)
+dt <- merge(dt, dtActivityNames, by="activityNum", all.x=TRUE)
 ```
 
-Add `activityLabel` as a key.
+Add `activityName` as a key.
 
 ```{r}
-setkey(dt, subject, activity, activityLabel)
+setkey(dt, subject, activityNum, activityName)
 ```
 
 Melt the data table to reshape it from a short and wide format to a tall and narrow format.
 
 ```{r}
-dt <- data.table(melt(dt, key(dt)))
+dt <- data.table(melt(dt, key(dt), variable.name="featureCode"))
 ```
 
 Merge activity name.
 
 ```{r}
-dt <- merge(dt, dtFeatures[, list(colNum, variable, featureName)], by="variable", all.x=TRUE)
+dt <- merge(dt, dtFeatures[, list(featureNum, featureCode, featureName)], by="featureCode", all.x=TRUE)
+```
+
+Set `activityName` and `featureName` as factors.
+
+```{r}
+dt$activityName <- factor(dt$activityName)
+dt$featureName <- factor(dt$featureName)
+```
+
+List feature names. **TO-DO add multiple factor variables for features**
+
+```{r}
+dt[, .N, by="featureName"]
 ```
 
 Check.
@@ -210,10 +225,10 @@ dt
 Create a tidy data set
 ----------------------
 
-Create a data set with the average of each variable for each activity and each subject
+Create a data set with the average of each variable for each activity and each subject.
 
 ```{r}
-setkey(dt, subject, activity, activityLabel, colNum, variable, featureName)
+setkey(dt, subject, activityName, featureName)
 dtTidy <- dt[, list(count = .N, average = mean(value)), by=key(dt)]
 ```
 
@@ -228,20 +243,41 @@ f <- file.path(path, "project.RData")
 save(dt, dtTidy, file=f)
 ```
 
+--------------------------------------------------------------------------------
 
 Codebook
 --------
 
-### Tidy dataset
+Variable list and descriptions.
+
+Variable name | Description
+--------------|------------
+subject       | ID the subject who performed the activity for each window sample. Its range is from 1 to 30.
+activityName  | Activity name
+featureName   | Feature name
+count         | Count of data points used to compute `average`
+average       | Average of each variable for each activity and each subject
+
+Dataset structure.
 
 ```{r}
 str(dtTidy)
+```
+
+List the key variables in the data table.
+
+```{r}
+key(dtTidy)
+```
+
+Show a few rows of the dataset.
+
+```{r}
 dtTidy
 ```
 
-### Staged dataset
+Summary of variables.
 
 ```{r}
-str(dt)
-dt
+summary(dtTidy)
 ```
