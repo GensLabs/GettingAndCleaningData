@@ -1,6 +1,6 @@
 run_analysis
 ============
-Last updated 2014-04-12 11:27:46 using R version 3.0.2 (2013-09-25).
+Last updated 2014-04-14 10:18:19 using R version 3.0.2 (2013-09-25).
 
 
 Instructions for project
@@ -55,7 +55,7 @@ path
 ```
 
 ```
-## [1] "C:/Users/Ben/Documents/GitHub repositories/GettingAndCleaningData/Project"
+## [1] "C:/Users/chanb/Documents/Repositories/Coursera/GettingAndCleaningData/Project"
 ```
 
 
@@ -128,7 +128,7 @@ list.files(pathIn, recursive = TRUE)
 ```
 
 
-**See the `README.txt` file in C:/Users/Ben/Documents/GitHub repositories/GettingAndCleaningData/Project for detailed information on the dataset.**
+**See the `README.txt` file in C:/Users/chanb/Documents/Repositories/Coursera/GettingAndCleaningData/Project for detailed information on the dataset.**
 
 For the purposes of this project, the files in the `Inertial Signals` folders are not used.
 
@@ -385,23 +385,11 @@ dtTidy <- dt[, list(count = .N, average = mean(value)), by = key(dt)]
 
 
 
-Save to file
-------------
-
-Save data table objects to an RData file.
-
-
-```r
-f <- file.path(path, "project.RData")
-save(dt, dtTidy, file = f)
-```
-
-
 --------------------------------------------------------------------------------
 
 Codebook
 ========
-Codebook was generated on 2014-04-12 11:28:24 during the same process that generated the dataset. See `run_analysis.md` or `run_analysis.html` for details on dataset creation.
+Codebook was generated on 2014-04-14 10:18:52 during the same process that generated the dataset. See `run_analysis.md` or `run_analysis.html` for details on dataset creation.
 
 Variable list and descriptions
 ------------------------------
@@ -675,5 +663,17 @@ dtTidy[, .N, by = c(names(dtTidy)[grep("^feat", names(dtTidy))])]
 ## 65:         Mean       NA 180
 ## 66:           SD       NA 180
 ##     featVariable featAxis   N
+```
+
+
+Save to file
+------------
+
+Save data table objects to an txt file called `DatasetHumanActivityRecognitionUsingSmartphones.txt`.
+
+
+```r
+f <- file.path(path, "DatasetHumanActivityRecognitionUsingSmartphones.txt")
+write.table(dtTidy, f, quote = FALSE, sep = "\t", row.names = FALSE)
 ```
 

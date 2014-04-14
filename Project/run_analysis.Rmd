@@ -264,16 +264,6 @@ dtTidy <- dt[, list(count = .N, average = mean(value)), by=key(dt)]
 ```
 
 
-Save to file
-------------
-
-Save data table objects to an RData file.
-
-```{r save}
-f <- file.path(path, "project.RData")
-save(dt, dtTidy, file=f)
-```
-
 --------------------------------------------------------------------------------
 
 Codebook
@@ -330,4 +320,14 @@ List all possible combinations of features
 
 ```{r}
 dtTidy[, .N, by=c(names(dtTidy)[grep("^feat", names(dtTidy))])]
+```
+
+Save to file
+------------
+
+Save data table objects to an txt file called `DatasetHumanActivityRecognitionUsingSmartphones.txt`.
+
+```{r save}
+f <- file.path(path, "DatasetHumanActivityRecognitionUsingSmartphones.txt")
+write.table(dtTidy, f, quote=FALSE, sep="\t", row.names=FALSE)
 ```

@@ -191,7 +191,7 @@ hr {
 <body>
 <h1>run_analysis</h1>
 
-<p>Last updated 2014-04-12 11:27:46 using R version 3.0.2 (2013-09-25).</p>
+<p>Last updated 2014-04-14 10:18:19 using R version 3.0.2 (2013-09-25).</p>
 
 <h2>Instructions for project</h2>
 
@@ -239,7 +239,7 @@ sapply(packages, require, character.only = TRUE, quietly = TRUE)
 path
 </code></pre>
 
-<pre><code>## [1] &quot;C:/Users/Ben/Documents/GitHub repositories/GettingAndCleaningData/Project&quot;
+<pre><code>## [1] &quot;C:/Users/chanb/Documents/Repositories/Coursera/GettingAndCleaningData/Project&quot;
 </code></pre>
 
 <h2>Get the data</h2>
@@ -299,7 +299,7 @@ list.files(pathIn, recursive = TRUE)
 ## [28] &quot;train/y_train.txt&quot;
 </code></pre>
 
-<p><strong>See the <code>README.txt</code> file in C:/Users/Ben/Documents/GitHub repositories/GettingAndCleaningData/Project for detailed information on the dataset.</strong></p>
+<p><strong>See the <code>README.txt</code> file in C:/Users/chanb/Documents/Repositories/Coursera/GettingAndCleaningData/Project for detailed information on the dataset.</strong></p>
 
 <p>For the purposes of this project, the files in the <code>Inertial Signals</code> folders are not used.</p>
 
@@ -481,19 +481,11 @@ r1 == r2
 dtTidy &lt;- dt[, list(count = .N, average = mean(value)), by = key(dt)]
 </code></pre>
 
-<h2>Save to file</h2>
-
-<p>Save data table objects to an RData file.</p>
-
-<pre><code class="r">f &lt;- file.path(path, &quot;project.RData&quot;)
-save(dt, dtTidy, file = f)
-</code></pre>
-
 <hr/>
 
 <h1>Codebook</h1>
 
-<p>Codebook was generated on 2014-04-12 11:28:24 during the same process that generated the dataset. See <code>run_analysis.md</code> or <code>run_analysis.html</code> for details on dataset creation.</p>
+<p>Codebook was generated on 2014-04-14 10:18:52 during the same process that generated the dataset. See <code>run_analysis.md</code> or <code>run_analysis.html</code> for details on dataset creation.</p>
 
 <h2>Variable list and descriptions</h2>
 
@@ -780,6 +772,14 @@ save(dt, dtTidy, file = f)
 ## 65:         Mean       NA 180
 ## 66:           SD       NA 180
 ##     featVariable featAxis   N
+</code></pre>
+
+<h2>Save to file</h2>
+
+<p>Save data table objects to an txt file called <code>DatasetHumanActivityRecognitionUsingSmartphones.txt</code>.</p>
+
+<pre><code class="r">f &lt;- file.path(path, &quot;DatasetHumanActivityRecognitionUsingSmartphones.txt&quot;)
+write.table(dtTidy, f, quote = FALSE, sep = &quot;\t&quot;, row.names = FALSE)
 </code></pre>
 
 </body>
