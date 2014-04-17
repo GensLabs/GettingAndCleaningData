@@ -12,13 +12,14 @@ sapply(packages, require, character.only = TRUE, quietly = TRUE)
 ```
 
 ```
-## Warning: package 'sqldf' was built under R version 3.0.3 Warning: package
-## 'gsubfn' was built under R version 3.0.3
+## Warning: package 'sqldf' was built under R version 3.0.3
+## Warning: package 'gsubfn' was built under R version 3.0.3
 ```
 
 ```
-## Loading required package: proto Loading required namespace: tcltk Loading
-## required package: DBI
+## Loading required package: proto
+## Loading required namespace: tcltk
+## Loading required package: DBI
 ```
 
 ```
@@ -41,52 +42,16 @@ Question 1
 
 > Register an application with the Github API here https://github.com/settings/applications. Access the API to get information on your instructors repositories (hint: this is the url you want "https://api.github.com/users/jtleek/repos"). Use this data to find the time that the datasharing repo was created. What time was it created? This tutorial may be useful (https://github.com/hadley/httr/blob/master/demo/oauth2-github.r). You may also need to run the code in the base R package and not R studio.
 
+**Run this code chunk interactively**
+
 
 ```r
 library(httr)
-```
-
-```
-## Warning: package 'httr' was built under R version 3.0.3
-```
-
-```r
 require(httpuv)
-```
-
-```
-## Loading required package: httpuv
-```
-
-```
-## Warning: package 'httpuv' was built under R version 3.0.3
-```
-
-```r
 require(jsonlite)
-```
-
-```
-## Loading required package: jsonlite
-```
-
-```
-## Warning: package 'jsonlite' was built under R version 3.0.3
-```
-
-```r
 
 # 1. Find OAuth settings for github: http://developer.github.com/v3/oauth/
 oauth_endpoints("github")
-```
-
-```
-## <oauth_endpoint>
-##  authorize: https://github.com/login/oauth/authorize
-##  access:    https://github.com/login/oauth/access_token
-```
-
-```r
 
 # 2. Register an application at https://github.com/settings/applications
 # Insert your values below - if secret is omitted, it will look it up in the
@@ -96,44 +61,12 @@ myapp <- oauth_app("quiz2", "ddb0d599de51ccd02f4b", secret = "6af1109f6ecf442d29
 
 # 3. Get OAuth credentials
 github_token <- oauth2.0_token(oauth_endpoints("github"), myapp)
-```
-
-```
-## Error: oauth_listener() needs an interactive environment.
-```
-
-```r
 
 # 4. Use API
 req <- GET("https://api.github.com/users/jtleek/repos", config(token = github_token))
-```
-
-```
-## Error: object 'github_token' not found
-```
-
-```r
 stop_for_status(req)
-```
-
-```
-## Error: object 'req' not found
-```
-
-```r
 output <- content(req)
-```
-
-```
-## Error: object 'req' not found
-```
-
-```r
 list(output[[4]]$name, output[[4]]$created_at)
-```
-
-```
-## Error: object 'output' not found
 ```
 
 
@@ -250,6 +183,48 @@ Question 4
 > (Hint: the nchar() function in R may be helpful)
 
 
+```r
+connection <- url("http://biostat.jhsph.edu/~jleek/contact.html")
+htmlCode <- readLines(connection)
+close(connection)
+c(nchar(htmlCode[10]), nchar(htmlCode[20]), nchar(htmlCode[30]), nchar(htmlCode[100]))
+```
+
+```
+## [1] 45 31  7 25
+```
+
+
+
+```r
+require(httr)
+```
+
+```
+## Loading required package: httr
+```
+
+```r
+require(XML)
+```
+
+```
+## Loading required package: XML
+```
+
+```r
+htmlCode <- GET("http://biostat.jhsph.edu/~jleek/contact.html")
+content <- content(htmlCode, as = "text")
+htmlParsed <- htmlParse(content, asText = TRUE)
+xpathSApply(htmlParsed, "//title", xmlValue)
+```
+
+```
+## [1] "jeffrey leek contact"
+```
+
+
+
 Question 5
 ----------
 
@@ -260,3 +235,21 @@ Question 5
 > Original source of the data: http://www.cpc.ncep.noaa.gov/data/indices/wksst8110.for 
 > 
 > (Hint this is a fixed width file format)
+
+
+```r
+url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fwksst8110.for"
+lines <- readLines(url, n = 10)
+w <- c(1, 9, 5, 4, 1, 3, 5, 4, 1, 3, 5, 4, 1, 3, 5, 4, 1, 3)
+colNames <- c("filler", "week", "filler", "sstNino12", "filler", "sstaNino12", 
+    "filler", "sstNino3", "filler", "sstaNino3", "filler", "sstNino34", "filler", 
+    "sstaNino34", "filler", "sstNino4", "filler", "sstaNino4")
+d <- read.fwf(url, w, header = FALSE, skip = 4, col.names = colNames)
+d <- d[, grep("^[^filler]", names(d))]
+sum(d[, 4])
+```
+
+```
+## [1] 32427
+```
+

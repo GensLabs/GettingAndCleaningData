@@ -22,7 +22,9 @@ Question 1
 
 > Register an application with the Github API here https://github.com/settings/applications. Access the API to get information on your instructors repositories (hint: this is the url you want "https://api.github.com/users/jtleek/repos"). Use this data to find the time that the datasharing repo was created. What time was it created? This tutorial may be useful (https://github.com/hadley/httr/blob/master/demo/oauth2-github.r). You may also need to run the code in the base R package and not R studio.
 
-```{r}
+**Run this code chunk interactively**
+
+```{r, eval=FALSE}
 library(httr)
 require(httpuv)
 require(jsonlite)
@@ -99,6 +101,22 @@ Question 4
 > 
 > (Hint: the nchar() function in R may be helpful)
 
+```{r}
+connection <- url("http://biostat.jhsph.edu/~jleek/contact.html")
+htmlCode <- readLines(connection)
+close(connection)
+c(nchar(htmlCode[10]), nchar(htmlCode[20]), nchar(htmlCode[30]), nchar(htmlCode[100]))
+```
+
+```{r}
+require(httr)
+require(XML)
+htmlCode <- GET("http://biostat.jhsph.edu/~jleek/contact.html")
+content <- content(htmlCode, as="text")
+htmlParsed <- htmlParse(content, asText=TRUE)
+xpathSApply(htmlParsed, "//title", xmlValue)
+```
+
 
 Question 5
 ----------
@@ -110,3 +128,13 @@ Question 5
 > Original source of the data: http://www.cpc.ncep.noaa.gov/data/indices/wksst8110.for 
 > 
 > (Hint this is a fixed width file format)
+
+```{r}
+url <- "https://d396qusza40orc.cloudfront.net/getdata%2Fwksst8110.for"
+lines <- readLines(url, n=10)
+w <- c(1, 9, 5, 4, 1, 3, 5, 4, 1, 3, 5, 4, 1, 3, 5, 4, 1, 3)
+colNames <- c("filler", "week", "filler", "sstNino12", "filler", "sstaNino12", "filler", "sstNino3", "filler", "sstaNino3", "filler", "sstNino34", "filler", "sstaNino34", "filler", "sstNino4", "filler", "sstaNino4")
+d <- read.fwf(url, w, header=FALSE, skip=4, col.names=colNames)
+d <- d[, grep("^[^filler]", names(d))]
+sum(d[, 4])
+```
