@@ -189,13 +189,12 @@ hljs.initHighlightingOnLoad();
 sapply(packages, require, character.only = TRUE, quietly = TRUE)
 </code></pre>
 
-<pre><code>## Warning: package &#39;sqldf&#39; was built under R version 3.0.3
-## Warning: package &#39;gsubfn&#39; was built under R version 3.0.3
+<pre><code>## Warning: package &#39;sqldf&#39; was built under R version 3.0.3 Warning: package
+## &#39;gsubfn&#39; was built under R version 3.0.3
 </code></pre>
 
-<pre><code>## Loading required package: proto
-## Loading required namespace: tcltk
-## Loading required package: DBI
+<pre><code>## Loading required package: proto Loading required namespace: tcltk Loading
+## required package: DBI
 </code></pre>
 
 <pre><code>## data.table      sqldf 
@@ -212,6 +211,80 @@ sapply(packages, require, character.only = TRUE, quietly = TRUE)
 <blockquote>
 <p>Register an application with the Github API here <a href="https://github.com/settings/applications">https://github.com/settings/applications</a>. Access the API to get information on your instructors repositories (hint: this is the url you want &ldquo;<a href="https://api.github.com/users/jtleek/repos%22">https://api.github.com/users/jtleek/repos&rdquo;</a>). Use this data to find the time that the datasharing repo was created. What time was it created? This tutorial may be useful (<a href="https://github.com/hadley/httr/blob/master/demo/oauth2-github.r">https://github.com/hadley/httr/blob/master/demo/oauth2-github.r</a>). You may also need to run the code in the base R package and not R studio.</p>
 </blockquote>
+
+<pre><code class="r">library(httr)
+</code></pre>
+
+<pre><code>## Warning: package &#39;httr&#39; was built under R version 3.0.3
+</code></pre>
+
+<pre><code class="r">require(httpuv)
+</code></pre>
+
+<pre><code>## Loading required package: httpuv
+</code></pre>
+
+<pre><code>## Warning: package &#39;httpuv&#39; was built under R version 3.0.3
+</code></pre>
+
+<pre><code class="r">require(jsonlite)
+</code></pre>
+
+<pre><code>## Loading required package: jsonlite
+</code></pre>
+
+<pre><code>## Warning: package &#39;jsonlite&#39; was built under R version 3.0.3
+</code></pre>
+
+<pre><code class="r">
+# 1. Find OAuth settings for github: http://developer.github.com/v3/oauth/
+oauth_endpoints(&quot;github&quot;)
+</code></pre>
+
+<pre><code>## &lt;oauth_endpoint&gt;
+##  authorize: https://github.com/login/oauth/authorize
+##  access:    https://github.com/login/oauth/access_token
+</code></pre>
+
+<pre><code class="r">
+# 2. Register an application at https://github.com/settings/applications
+# Insert your values below - if secret is omitted, it will look it up in the
+# GITHUB_CONSUMER_SECRET environmental variable.  Use http://localhost:1410
+# as the callback url
+myapp &lt;- oauth_app(&quot;quiz2&quot;, &quot;ddb0d599de51ccd02f4b&quot;, secret = &quot;6af1109f6ecf442d292425087d49bb13d9bbe9c8&quot;)
+
+# 3. Get OAuth credentials
+github_token &lt;- oauth2.0_token(oauth_endpoints(&quot;github&quot;), myapp)
+</code></pre>
+
+<pre><code>## Error: oauth_listener() needs an interactive environment.
+</code></pre>
+
+<pre><code class="r">
+# 4. Use API
+req &lt;- GET(&quot;https://api.github.com/users/jtleek/repos&quot;, config(token = github_token))
+</code></pre>
+
+<pre><code>## Error: object &#39;github_token&#39; not found
+</code></pre>
+
+<pre><code class="r">stop_for_status(req)
+</code></pre>
+
+<pre><code>## Error: object &#39;req&#39; not found
+</code></pre>
+
+<pre><code class="r">output &lt;- content(req)
+</code></pre>
+
+<pre><code>## Error: object &#39;req&#39; not found
+</code></pre>
+
+<pre><code class="r">list(output[[4]]$name, output[[4]]$created_at)
+</code></pre>
+
+<pre><code>## Error: object &#39;output&#39; not found
+</code></pre>
 
 <h2>Question 2</h2>
 

@@ -12,14 +12,13 @@ sapply(packages, require, character.only = TRUE, quietly = TRUE)
 ```
 
 ```
-## Warning: package 'sqldf' was built under R version 3.0.3
-## Warning: package 'gsubfn' was built under R version 3.0.3
+## Warning: package 'sqldf' was built under R version 3.0.3 Warning: package
+## 'gsubfn' was built under R version 3.0.3
 ```
 
 ```
-## Loading required package: proto
-## Loading required namespace: tcltk
-## Loading required package: DBI
+## Loading required package: proto Loading required namespace: tcltk Loading
+## required package: DBI
 ```
 
 ```
@@ -41,6 +40,102 @@ Question 1
 ----------
 
 > Register an application with the Github API here https://github.com/settings/applications. Access the API to get information on your instructors repositories (hint: this is the url you want "https://api.github.com/users/jtleek/repos"). Use this data to find the time that the datasharing repo was created. What time was it created? This tutorial may be useful (https://github.com/hadley/httr/blob/master/demo/oauth2-github.r). You may also need to run the code in the base R package and not R studio.
+
+
+```r
+library(httr)
+```
+
+```
+## Warning: package 'httr' was built under R version 3.0.3
+```
+
+```r
+require(httpuv)
+```
+
+```
+## Loading required package: httpuv
+```
+
+```
+## Warning: package 'httpuv' was built under R version 3.0.3
+```
+
+```r
+require(jsonlite)
+```
+
+```
+## Loading required package: jsonlite
+```
+
+```
+## Warning: package 'jsonlite' was built under R version 3.0.3
+```
+
+```r
+
+# 1. Find OAuth settings for github: http://developer.github.com/v3/oauth/
+oauth_endpoints("github")
+```
+
+```
+## <oauth_endpoint>
+##  authorize: https://github.com/login/oauth/authorize
+##  access:    https://github.com/login/oauth/access_token
+```
+
+```r
+
+# 2. Register an application at https://github.com/settings/applications
+# Insert your values below - if secret is omitted, it will look it up in the
+# GITHUB_CONSUMER_SECRET environmental variable.  Use http://localhost:1410
+# as the callback url
+myapp <- oauth_app("quiz2", "ddb0d599de51ccd02f4b", secret = "6af1109f6ecf442d292425087d49bb13d9bbe9c8")
+
+# 3. Get OAuth credentials
+github_token <- oauth2.0_token(oauth_endpoints("github"), myapp)
+```
+
+```
+## Error: oauth_listener() needs an interactive environment.
+```
+
+```r
+
+# 4. Use API
+req <- GET("https://api.github.com/users/jtleek/repos", config(token = github_token))
+```
+
+```
+## Error: object 'github_token' not found
+```
+
+```r
+stop_for_status(req)
+```
+
+```
+## Error: object 'req' not found
+```
+
+```r
+output <- content(req)
+```
+
+```
+## Error: object 'req' not found
+```
+
+```r
+list(output[[4]]$name, output[[4]]$created_at)
+```
+
+```
+## Error: object 'output' not found
+```
+
 
 
 Question 2
