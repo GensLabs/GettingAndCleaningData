@@ -191,7 +191,7 @@ hr {
 <body>
 <h1>run_analysis</h1>
 
-<p>Last updated 2014-04-17 04:36:07 using R version 3.0.2 (2013-09-25).</p>
+<p>Last updated 2014-04-17 09:04:14 using R version 3.0.2 (2013-09-25).</p>
 
 <h2>Instructions for project</h2>
 
@@ -239,7 +239,7 @@ sapply(packages, require, character.only = TRUE, quietly = TRUE)
 path
 </code></pre>
 
-<pre><code>## [1] &quot;C:/Users/Ben/Documents/GitHub repositories/GettingAndCleaningData/Project&quot;
+<pre><code>## [1] &quot;C:/Users/chanb/Documents/Repositories/Coursera/GettingAndCleaningData/Project&quot;
 </code></pre>
 
 <h2>Get the data</h2>
@@ -299,7 +299,7 @@ list.files(pathIn, recursive = TRUE)
 ## [28] &quot;train/y_train.txt&quot;
 </code></pre>
 
-<p><strong>See the <code>README.txt</code> file in C:/Users/Ben/Documents/GitHub repositories/GettingAndCleaningData/Project for detailed information on the dataset.</strong></p>
+<p><strong>See the <code>README.txt</code> file in C:/Users/chanb/Documents/Repositories/Coursera/GettingAndCleaningData/Project for detailed information on the dataset.</strong></p>
 
 <p>For the purposes of this project, the files in the <code>Inertial Signals</code> folders are not used.</p>
 
@@ -487,6 +487,9 @@ dtTidy &lt;- dt[, list(count = .N, average = mean(value)), by = key(dt)]
 </code></pre>
 
 <pre><code>## [1] &quot;codebook.md&quot;
+</code></pre>
+
+<pre><code class="r">markdownToHTML(&quot;codebook.md&quot;, &quot;codebook.html&quot;)
 </code></pre>
 
 </body>

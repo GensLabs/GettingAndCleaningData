@@ -267,4 +267,5 @@ Make codebook.
 
 ```{r}
 knit("makeCodebook.Rmd", output="codebook.md", encoding="ISO8859-1", quiet=TRUE)
+markdownToHTML("codebook.md", "codebook.html")
 ```

@@ -1,6 +1,6 @@
 run_analysis
 ============
-Last updated 2014-04-17 04:36:07 using R version 3.0.2 (2013-09-25).
+Last updated 2014-04-17 09:04:14 using R version 3.0.2 (2013-09-25).
 
 
 Instructions for project
@@ -55,7 +55,7 @@ path
 ```
 
 ```
-## [1] "C:/Users/Ben/Documents/GitHub repositories/GettingAndCleaningData/Project"
+## [1] "C:/Users/chanb/Documents/Repositories/Coursera/GettingAndCleaningData/Project"
 ```
 
 
@@ -128,7 +128,7 @@ list.files(pathIn, recursive = TRUE)
 ```
 
 
-**See the `README.txt` file in C:/Users/Ben/Documents/GitHub repositories/GettingAndCleaningData/Project for detailed information on the dataset.**
+**See the `README.txt` file in C:/Users/chanb/Documents/Repositories/Coursera/GettingAndCleaningData/Project for detailed information on the dataset.**
 
 For the purposes of this project, the files in the `Inertial Signals` folders are not used.
 
@@ -393,5 +393,9 @@ knit("makeCodebook.Rmd", output = "codebook.md", encoding = "ISO8859-1", quiet =
 
 ```
 ## [1] "codebook.md"
+```
+
+```r
+markdownToHTML("codebook.md", "codebook.html")
 ```
 
