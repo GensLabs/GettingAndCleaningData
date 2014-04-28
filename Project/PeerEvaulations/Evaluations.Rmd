@@ -1,0 +1,69 @@
+Peer evaluations
+================
+
+Load packages.
+
+```{r}
+packages <- c("data.table")
+sapply(packages, require, character.only=TRUE, quietly=TRUE)
+```
+
+Fix URL reading for knitr. See [Stackoverflow](http://stackoverflow.com/a/20003380).
+
+```{r}
+setInternet2(TRUE)
+```
+
+
+My submission
+-------------
+
+Read my tidy dataset. Use this to compare to peers. Get structure of my dataset.
+
+```{r}
+f <- file.path("..", "DatasetHumanActivityRecognitionUsingSmartphones.txt")
+dt0 <- data.table(read.table(f, header=TRUE))
+```
+
+Get structure of my dataset.
+
+```{r}
+str(dt0)
+head(dt0)
+```
+
+
+Student 1
+---------
+
+Read in Student 1's tidy dataset.
+
+```{r}
+url <- "https://s3.amazonaws.com/coursera-uploads/user-da581c348504652cf6d52b48/972080/asst-3/320c2dc0ce3e11e3bb7387f31f11f941.txt"
+dt1 <- data.table(read.table(url))
+```
+
+Get structure of the dataset.
+
+```{r}
+str(dt1)
+head(dt1)
+```
+
+
+Student 2
+---------
+
+Read in Student 1's tidy dataset.
+
+```{r}
+url <- "https://s3.amazonaws.com/coursera-uploads/user-cd5fa9234072b2113411a5b6/972080/asst-3/45e306b0ce6211e38f91f1adc287d0b7.txt"
+dt2 <- data.table(read.table(url, header=TRUE))
+```
+
+Get structure of the dataset.
+
+```{r}
+str(dt2)
+head(dt2)
+```
