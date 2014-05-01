@@ -17,8 +17,9 @@ setInternet2(TRUE)
 
 My submission
 -------------
+My GitHub repository is https://github.com/benjamin-chan/GettingAndCleaningData.
 
-Read my tidy dataset. Use this to compare to peers. Get structure of my dataset.
+Read my tidy dataset. Use this to compare to peers.
 
 ```{r}
 f <- file.path("..", "DatasetHumanActivityRecognitionUsingSmartphones.txt")
@@ -35,12 +36,13 @@ head(dt0)
 
 Student 1
 ---------
+GitHub repository is https://github.com/sdrdis/getdata_peer_assessment.
 
-Read in Student 1's tidy dataset.
+Read in tidy dataset.
 
 ```{r}
 url <- "https://s3.amazonaws.com/coursera-uploads/user-da581c348504652cf6d52b48/972080/asst-3/320c2dc0ce3e11e3bb7387f31f11f941.txt"
-dt1 <- data.table(read.table(url))
+dt1 <- data.table(read.table(url, header=TRUE))
 ```
 
 Get structure of the dataset.
@@ -53,8 +55,9 @@ head(dt1)
 
 Student 2
 ---------
+GitHub repository is https://github.com/alvasvoboda/PeerAssessment.
 
-Read in Student 1's tidy dataset.
+Read in tidy dataset.
 
 ```{r}
 url <- "https://s3.amazonaws.com/coursera-uploads/user-cd5fa9234072b2113411a5b6/972080/asst-3/45e306b0ce6211e38f91f1adc287d0b7.txt"
@@ -66,4 +69,42 @@ Get structure of the dataset.
 ```{r}
 str(dt2)
 head(dt2)
+```
+
+
+Student 3
+---------
+GitHub repository is https://github.com/rafalohn/tidyData.
+
+Read in tidy dataset.
+
+```{r}
+url <- "https://s3.amazonaws.com/coursera-uploads/user-86e8069e2ecc3248b76506ff/972080/asst-3/b00980a0ce5d11e39688c70635ebeff0.txt"
+dt3 <- data.table(read.csv(url))
+```
+
+Get structure of the dataset.
+
+```{r}
+str(dt3)
+head(dt3)
+```
+
+
+Student 4
+---------
+GitHub repository is https://github.com/glynn/GACD_PeerAssessment.
+
+Read in tidy dataset.
+
+```{r}
+url <- "https://s3.amazonaws.com/coursera-uploads/user-bd605606b2bf83039906529c/972080/asst-3/1cf35bf0ce3b11e3a98a0101a16d1137.txt"
+dt4 <- data.table(read.table(url, header=TRUE))
+```
+
+Get structure of the dataset.
+
+```{r}
+str(dt4)
+head(dt4)
 ```
