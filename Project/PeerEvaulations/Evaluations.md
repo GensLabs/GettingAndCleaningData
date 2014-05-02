@@ -1,6 +1,47 @@
 Peer evaluations
 ================
 
+Assignment
+----------
+
+> The purpose of this project is to demonstrate your ability to collect, work
+> with, and clean a data set. The goal is to prepare tidy data that can be used
+> for later analysis. You will be graded by your peers on a series of yes/no
+> questions related to the project. You will be required to submit: 1) a tidy data
+> set as described below, 2) a link to a Github repository with your script for
+> performing the analysis, and 3) a code book that describes the variables, the
+> data, and any transformations or work that you performed to clean up the data
+> called CodeBook.md. You should also include a README.md in the repo with your
+> scripts. This repo explains how all of the scripts work and how they are
+> connected.
+> 
+> One of the most exciting areas in all of data science right now is wearable
+> computing - see for example this article . Companies like Fitbit, Nike, and
+> Jawbone Up are racing to develop the most advanced algorithms to attract new
+> users. The data linked to from the course website represent data collected from
+> the accelerometers from the Samsung Galaxy S smartphone. A full description is
+> available at the site where the data was obtained:
+> 
+> http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones 
+> 
+> Here are the data for the project: 
+> 
+> https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip 
+> 
+> You should create one R script called run_analysis.R that does the following.
+> Merges the training and the test sets to create one data set. Extracts only the
+> measurements on the mean and standard deviation for each measurement.  Uses
+> descriptive activity names to name the activities in the data set Appropriately
+> labels the data set with descriptive activity names.  Creates a second,
+> independent tidy data set with the average of each variable for each activity
+> and each subject.
+> 
+> Good luck!
+
+
+Preliminaries
+-------------
+
 Load packages.
 
 
@@ -24,44 +65,560 @@ setInternet2(TRUE)
 
 
 
-My submission
+Grab datasets
 -------------
-My GitHub repository is https://github.com/benjamin-chan/GettingAndCleaningData.
-
-Read my tidy dataset. Use this to compare to peers.
+My dataset. Use this to compare to peers. 
 
 
 ```r
 f <- file.path("..", "DatasetHumanActivityRecognitionUsingSmartphones.txt")
-dt0 <- data.table(read.table(f, header = TRUE))
+d0 <- data.table(read.table(f, header = TRUE))
 ```
 
 
-Get structure of my dataset.
+Student 1. 
 
 
 ```r
-str(dt0)
+url <- "https://s3.amazonaws.com/coursera-uploads/user-da581c348504652cf6d52b48/972080/asst-3/320c2dc0ce3e11e3bb7387f31f11f941.txt"
+d1 <- data.table(read.table(url, header = TRUE))
+```
+
+
+Student 2. 
+
+
+```r
+url <- "https://s3.amazonaws.com/coursera-uploads/user-cd5fa9234072b2113411a5b6/972080/asst-3/45e306b0ce6211e38f91f1adc287d0b7.txt"
+d2 <- data.table(read.table(url, header = TRUE))
+```
+
+
+Student 3.
+
+
+```r
+url <- "https://s3.amazonaws.com/coursera-uploads/user-86e8069e2ecc3248b76506ff/972080/asst-3/b00980a0ce5d11e39688c70635ebeff0.txt"
+d3 <- data.table(read.csv(url))
+```
+
+
+Student 4. 
+
+
+```r
+url <- "https://s3.amazonaws.com/coursera-uploads/user-bd605606b2bf83039906529c/972080/asst-3/1cf35bf0ce3b11e3a98a0101a16d1137.txt"
+d4 <- data.table(read.table(url, header = TRUE))
+```
+
+
+
+GitHub repositories
+-------------------
+
+Student | URL
+--------|----
+Me      | https://github.com/benjamin-chan/GettingAndCleaningData/tree/master/Project
+1       | https://github.com/sdrdis/getdata_peer_assessment
+2       | https://github.com/alvasvoboda/PeerAssessment
+3       | https://github.com/rafalohn/tidyData
+4       | https://github.com/glynn/GACD_PeerAssessment
+
+
+Compare dimensions of the datasets
+----------------------------------
+
+
+```r
+dim0 <- sprintf("%.0d rows, %.0d columns", nrow(d0), ncol(d0))
+dim1 <- sprintf("%.0d rows, %.0d columns", nrow(d1), ncol(d1))
+dim2 <- sprintf("%.0d rows, %.0d columns", nrow(d2), ncol(d2))
+dim3 <- sprintf("%.0d rows, %.0d columns", nrow(d3), ncol(d3))
+dim4 <- sprintf("%.0d rows, %.0d columns", nrow(d4), ncol(d4))
+```
+
+
+
+Student | Dimensions of tidy dataset
+--------|---------------------------
+Me      | 11880 rows, 11 columns
+1       | 180 rows, 66 columns
+2       | 10299 rows, 68 columns
+3       | 79 rows, 127 columns
+4       | 180 rows, 81 columns
+
+
+Variables in each dataset
+-------------------------
+
+
+```r
+names(d0)
 ```
 
 ```
-## Classes 'data.table' and 'data.frame':	11880 obs. of  11 variables:
-##  $ subject         : int  1 1 1 1 1 1 1 1 1 1 ...
-##  $ activity        : Factor w/ 6 levels "LAYING","SITTING",..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ featDomain      : Factor w/ 2 levels "Freq","Time": 2 2 2 2 2 2 2 2 2 2 ...
-##  $ featAcceleration: Factor w/ 2 levels "Body","Gravity": NA NA NA NA NA NA NA NA NA NA ...
-##  $ featInstrument  : Factor w/ 2 levels "Accelerometer",..: 2 2 2 2 2 2 2 2 2 2 ...
-##  $ featJerk        : Factor w/ 1 level "Jerk": NA NA NA NA NA NA NA NA 1 1 ...
-##  $ featMagnitude   : Factor w/ 1 level "Magnitude": NA NA NA NA NA NA 1 1 NA NA ...
-##  $ featVariable    : Factor w/ 2 levels "Mean","SD": 1 1 1 2 2 2 1 2 1 1 ...
-##  $ featAxis        : Factor w/ 3 levels "X","Y","Z": 1 2 3 1 2 3 NA NA 1 2 ...
-##  $ count           : int  50 50 50 50 50 50 50 50 50 50 ...
-##  $ average         : num  -0.0166 -0.0645 0.1487 -0.8735 -0.9511 ...
-##  - attr(*, ".internal.selfref")=<externalptr>
+##  [1] "subject"          "activity"         "featDomain"      
+##  [4] "featAcceleration" "featInstrument"   "featJerk"        
+##  [7] "featMagnitude"    "featVariable"     "featAxis"        
+## [10] "count"            "average"
 ```
 
 ```r
-head(dt0)
+names(d1)
+```
+
+```
+##  [1] "tBodyAcc.mean.X"           "tBodyAcc.mean.Y"          
+##  [3] "tBodyAcc.mean.Z"           "tBodyAcc.std.X"           
+##  [5] "tBodyAcc.std.Y"            "tBodyAcc.std.Z"           
+##  [7] "tGravityAcc.mean.X"        "tGravityAcc.mean.Y"       
+##  [9] "tGravityAcc.mean.Z"        "tGravityAcc.std.X"        
+## [11] "tGravityAcc.std.Y"         "tGravityAcc.std.Z"        
+## [13] "tBodyAccJerk.mean.X"       "tBodyAccJerk.mean.Y"      
+## [15] "tBodyAccJerk.mean.Z"       "tBodyAccJerk.std.X"       
+## [17] "tBodyAccJerk.std.Y"        "tBodyAccJerk.std.Z"       
+## [19] "tBodyGyro.mean.X"          "tBodyGyro.mean.Y"         
+## [21] "tBodyGyro.mean.Z"          "tBodyGyro.std.X"          
+## [23] "tBodyGyro.std.Y"           "tBodyGyro.std.Z"          
+## [25] "tBodyGyroJerk.mean.X"      "tBodyGyroJerk.mean.Y"     
+## [27] "tBodyGyroJerk.mean.Z"      "tBodyGyroJerk.std.X"      
+## [29] "tBodyGyroJerk.std.Y"       "tBodyGyroJerk.std.Z"      
+## [31] "tBodyAccMag.mean"          "tBodyAccMag.std"          
+## [33] "tGravityAccMag.mean"       "tGravityAccMag.std"       
+## [35] "tBodyAccJerkMag.mean"      "tBodyAccJerkMag.std"      
+## [37] "tBodyGyroMag.mean"         "tBodyGyroMag.std"         
+## [39] "tBodyGyroJerkMag.mean"     "tBodyGyroJerkMag.std"     
+## [41] "fBodyAcc.mean.X"           "fBodyAcc.mean.Y"          
+## [43] "fBodyAcc.mean.Z"           "fBodyAcc.std.X"           
+## [45] "fBodyAcc.std.Y"            "fBodyAcc.std.Z"           
+## [47] "fBodyAccJerk.mean.X"       "fBodyAccJerk.mean.Y"      
+## [49] "fBodyAccJerk.mean.Z"       "fBodyAccJerk.std.X"       
+## [51] "fBodyAccJerk.std.Y"        "fBodyAccJerk.std.Z"       
+## [53] "fBodyGyro.mean.X"          "fBodyGyro.mean.Y"         
+## [55] "fBodyGyro.mean.Z"          "fBodyGyro.std.X"          
+## [57] "fBodyGyro.std.Y"           "fBodyGyro.std.Z"          
+## [59] "fBodyAccMag.mean"          "fBodyAccMag.std"          
+## [61] "fBodyBodyAccJerkMag.mean"  "fBodyBodyAccJerkMag.std"  
+## [63] "fBodyBodyGyroMag.mean"     "fBodyBodyGyroMag.std"     
+## [65] "fBodyBodyGyroJerkMag.mean" "fBodyBodyGyroJerkMag.std"
+```
+
+```r
+names(d2)
+```
+
+```
+##  [1] "tBodyAcc_mean_X"           "tBodyAcc_mean_Y"          
+##  [3] "tBodyAcc_mean_Z"           "tBodyAcc_std_X"           
+##  [5] "tBodyAcc_std_Y"            "tBodyAcc_std_Z"           
+##  [7] "tGravityAcc_mean_X"        "tGravityAcc_mean_Y"       
+##  [9] "tGravityAcc_mean_Z"        "tGravityAcc_std_X"        
+## [11] "tGravityAcc_std_Y"         "tGravitybodyAcc_std_Z"    
+## [13] "tBodyAccJerk_mean_X"       "tBodyAccJerk_mean_Y"      
+## [15] "tBodyAccJerk_mean_Z"       "tBodyAccJerk_std_X"       
+## [17] "tBodyAccJerk_std_Y"        "tBodyAccJerk_std_Z"       
+## [19] "tBodyGyro_mean_X"          "tBodyGyro_mean_Y"         
+## [21] "tBodyGyro_mean_Z"          "tBodyGyro_std_X"          
+## [23] "tBodyGyro_std_Y"           "tBodyGyro_std_Z"          
+## [25] "tBodyGyroJerk_mean_X"      "tBodyGyroJerk_mean_Y"     
+## [27] "tBodyGyroJerk_mean_Z"      "tBodyGyroJerk_std_X"      
+## [29] "tBodyGyroJerk_std_Y"       "tBodyGyroJerk_std_Z"      
+## [31] "tBodyAccMag_mean"          "tBodyAccMag_std"          
+## [33] "tGravityAccMag_mean"       "tGravityAccMag_std"       
+## [35] "tBodyAccJerkMag_mean"      "tBodyAccJerkMag_std"      
+## [37] "tBodyGyroMag_mean"         "tBodyGyroMag_std"         
+## [39] "tBodyGyroJerkMag_mean"     "tBodyGyroJerkMag_std"     
+## [41] "fBodyAcc_mean_X"           "fBodyAcc_mean_Y"          
+## [43] "fBodyAcc_mean_Z"           "fBodyAcc_std_X"           
+## [45] "fBodyAcc_std_Y"            "fBodyAcc_std_Z"           
+## [47] "fBodyAccJerk_mean_X"       "fBodyAccJerk_mean_Y"      
+## [49] "fBodyAccJerk_mean_Z"       "fBodyAccJerk_std_X"       
+## [51] "fBodyAccJerk_std_Y"        "fBodyAccJerk_std_Z"       
+## [53] "fBodyGyro_mean_X"          "fBodyGyro_mean_Y"         
+## [55] "fBodyGyro_mean_Z"          "fBodyGyro_std_X"          
+## [57] "fBodyGyro_std_Y"           "fBodyGyro_std_Z"          
+## [59] "fBodyAccMag_mean"          "fBodyAccMag_std"          
+## [61] "fBodyBodyAccJerkMag_mean"  "fBodyBodyAccJerkMag_std"  
+## [63] "fBodyBodyGyroMag_mean"     "fBodyBodyGyroMag_std"     
+## [65] "fBodyBodyGyroJerkMag_mean" "fBodyBodyGyroJerkMag_std" 
+## [67] "y_label"                   "subject_id"
+```
+
+```r
+names(d3)
+```
+
+```
+##   [1] "X"                      "X1.WALKING"            
+##   [3] "X3.WALKING"             "X5.WALKING"            
+##   [5] "X6.WALKING"             "X7.WALKING"            
+##   [7] "X8.WALKING"             "X11.WALKING"           
+##   [9] "X14.WALKING"            "X15.WALKING"           
+##  [11] "X16.WALKING"            "X17.WALKING"           
+##  [13] "X19.WALKING"            "X21.WALKING"           
+##  [15] "X22.WALKING"            "X23.WALKING"           
+##  [17] "X25.WALKING"            "X26.WALKING"           
+##  [19] "X27.WALKING"            "X28.WALKING"           
+##  [21] "X29.WALKING"            "X30.WALKING"           
+##  [23] "X1.WALKING_UPSTAIRS"    "X3.WALKING_UPSTAIRS"   
+##  [25] "X5.WALKING_UPSTAIRS"    "X6.WALKING_UPSTAIRS"   
+##  [27] "X7.WALKING_UPSTAIRS"    "X8.WALKING_UPSTAIRS"   
+##  [29] "X11.WALKING_UPSTAIRS"   "X14.WALKING_UPSTAIRS"  
+##  [31] "X15.WALKING_UPSTAIRS"   "X16.WALKING_UPSTAIRS"  
+##  [33] "X17.WALKING_UPSTAIRS"   "X19.WALKING_UPSTAIRS"  
+##  [35] "X21.WALKING_UPSTAIRS"   "X22.WALKING_UPSTAIRS"  
+##  [37] "X23.WALKING_UPSTAIRS"   "X25.WALKING_UPSTAIRS"  
+##  [39] "X26.WALKING_UPSTAIRS"   "X27.WALKING_UPSTAIRS"  
+##  [41] "X28.WALKING_UPSTAIRS"   "X29.WALKING_UPSTAIRS"  
+##  [43] "X30.WALKING_UPSTAIRS"   "X1.WALKING_DOWNSTAIRS" 
+##  [45] "X3.WALKING_DOWNSTAIRS"  "X5.WALKING_DOWNSTAIRS" 
+##  [47] "X6.WALKING_DOWNSTAIRS"  "X7.WALKING_DOWNSTAIRS" 
+##  [49] "X8.WALKING_DOWNSTAIRS"  "X11.WALKING_DOWNSTAIRS"
+##  [51] "X14.WALKING_DOWNSTAIRS" "X15.WALKING_DOWNSTAIRS"
+##  [53] "X16.WALKING_DOWNSTAIRS" "X17.WALKING_DOWNSTAIRS"
+##  [55] "X19.WALKING_DOWNSTAIRS" "X21.WALKING_DOWNSTAIRS"
+##  [57] "X22.WALKING_DOWNSTAIRS" "X23.WALKING_DOWNSTAIRS"
+##  [59] "X25.WALKING_DOWNSTAIRS" "X26.WALKING_DOWNSTAIRS"
+##  [61] "X27.WALKING_DOWNSTAIRS" "X28.WALKING_DOWNSTAIRS"
+##  [63] "X29.WALKING_DOWNSTAIRS" "X30.WALKING_DOWNSTAIRS"
+##  [65] "X1.SITTING"             "X3.SITTING"            
+##  [67] "X5.SITTING"             "X6.SITTING"            
+##  [69] "X7.SITTING"             "X8.SITTING"            
+##  [71] "X11.SITTING"            "X14.SITTING"           
+##  [73] "X15.SITTING"            "X16.SITTING"           
+##  [75] "X17.SITTING"            "X19.SITTING"           
+##  [77] "X21.SITTING"            "X22.SITTING"           
+##  [79] "X23.SITTING"            "X25.SITTING"           
+##  [81] "X26.SITTING"            "X27.SITTING"           
+##  [83] "X28.SITTING"            "X29.SITTING"           
+##  [85] "X30.SITTING"            "X1.STANDING"           
+##  [87] "X3.STANDING"            "X5.STANDING"           
+##  [89] "X6.STANDING"            "X7.STANDING"           
+##  [91] "X8.STANDING"            "X11.STANDING"          
+##  [93] "X14.STANDING"           "X15.STANDING"          
+##  [95] "X16.STANDING"           "X17.STANDING"          
+##  [97] "X19.STANDING"           "X21.STANDING"          
+##  [99] "X22.STANDING"           "X23.STANDING"          
+## [101] "X25.STANDING"           "X26.STANDING"          
+## [103] "X27.STANDING"           "X28.STANDING"          
+## [105] "X29.STANDING"           "X30.STANDING"          
+## [107] "X1.LAYING"              "X3.LAYING"             
+## [109] "X5.LAYING"              "X6.LAYING"             
+## [111] "X7.LAYING"              "X8.LAYING"             
+## [113] "X11.LAYING"             "X14.LAYING"            
+## [115] "X15.LAYING"             "X16.LAYING"            
+## [117] "X17.LAYING"             "X19.LAYING"            
+## [119] "X21.LAYING"             "X22.LAYING"            
+## [121] "X23.LAYING"             "X25.LAYING"            
+## [123] "X26.LAYING"             "X27.LAYING"            
+## [125] "X28.LAYING"             "X29.LAYING"            
+## [127] "X30.LAYING"
+```
+
+```r
+names(d4)
+```
+
+```
+##  [1] "subject.id"                      "activity"                       
+##  [3] "tBodyAcc.mean...X"               "tBodyAcc.mean...Y"              
+##  [5] "tBodyAcc.mean...Z"               "tBodyAcc.std...X"               
+##  [7] "tBodyAcc.std...Y"                "tBodyAcc.std...Z"               
+##  [9] "tGravityAcc.mean...X"            "tGravityAcc.mean...Y"           
+## [11] "tGravityAcc.mean...Z"            "tGravityAcc.std...X"            
+## [13] "tGravityAcc.std...Y"             "tGravityAcc.std...Z"            
+## [15] "tBodyAccJerk.mean...X"           "tBodyAccJerk.mean...Y"          
+## [17] "tBodyAccJerk.mean...Z"           "tBodyAccJerk.std...X"           
+## [19] "tBodyAccJerk.std...Y"            "tBodyAccJerk.std...Z"           
+## [21] "tBodyGyro.mean...X"              "tBodyGyro.mean...Y"             
+## [23] "tBodyGyro.mean...Z"              "tBodyGyro.std...X"              
+## [25] "tBodyGyro.std...Y"               "tBodyGyro.std...Z"              
+## [27] "tBodyGyroJerk.mean...X"          "tBodyGyroJerk.mean...Y"         
+## [29] "tBodyGyroJerk.mean...Z"          "tBodyGyroJerk.std...X"          
+## [31] "tBodyGyroJerk.std...Y"           "tBodyGyroJerk.std...Z"          
+## [33] "tBodyAccMag.mean.."              "tBodyAccMag.std.."              
+## [35] "tGravityAccMag.mean.."           "tGravityAccMag.std.."           
+## [37] "tBodyAccJerkMag.mean.."          "tBodyAccJerkMag.std.."          
+## [39] "tBodyGyroMag.mean.."             "tBodyGyroMag.std.."             
+## [41] "tBodyGyroJerkMag.mean.."         "tBodyGyroJerkMag.std.."         
+## [43] "fBodyAcc.mean...X"               "fBodyAcc.mean...Y"              
+## [45] "fBodyAcc.mean...Z"               "fBodyAcc.std...X"               
+## [47] "fBodyAcc.std...Y"                "fBodyAcc.std...Z"               
+## [49] "fBodyAcc.meanFreq...X"           "fBodyAcc.meanFreq...Y"          
+## [51] "fBodyAcc.meanFreq...Z"           "fBodyAccJerk.mean...X"          
+## [53] "fBodyAccJerk.mean...Y"           "fBodyAccJerk.mean...Z"          
+## [55] "fBodyAccJerk.std...X"            "fBodyAccJerk.std...Y"           
+## [57] "fBodyAccJerk.std...Z"            "fBodyAccJerk.meanFreq...X"      
+## [59] "fBodyAccJerk.meanFreq...Y"       "fBodyAccJerk.meanFreq...Z"      
+## [61] "fBodyGyro.mean...X"              "fBodyGyro.mean...Y"             
+## [63] "fBodyGyro.mean...Z"              "fBodyGyro.std...X"              
+## [65] "fBodyGyro.std...Y"               "fBodyGyro.std...Z"              
+## [67] "fBodyGyro.meanFreq...X"          "fBodyGyro.meanFreq...Y"         
+## [69] "fBodyGyro.meanFreq...Z"          "fBodyAccMag.mean.."             
+## [71] "fBodyAccMag.std.."               "fBodyAccMag.meanFreq.."         
+## [73] "fBodyBodyAccJerkMag.mean.."      "fBodyBodyAccJerkMag.std.."      
+## [75] "fBodyBodyAccJerkMag.meanFreq.."  "fBodyBodyGyroMag.mean.."        
+## [77] "fBodyBodyGyroMag.std.."          "fBodyBodyGyroMag.meanFreq.."    
+## [79] "fBodyBodyGyroJerkMag.mean.."     "fBodyBodyGyroJerkMag.std.."     
+## [81] "fBodyBodyGyroJerkMag.meanFreq.."
+```
+
+
+
+Examine factor class variables
+------------------------------
+
+
+```r
+sapply(d0[, sapply(d0, is.factor), with = FALSE], levels)
+```
+
+```
+## $activity
+## [1] "LAYING"             "SITTING"            "STANDING"          
+## [4] "WALKING"            "WALKING_DOWNSTAIRS" "WALKING_UPSTAIRS"  
+## 
+## $featDomain
+## [1] "Freq" "Time"
+## 
+## $featAcceleration
+## [1] "Body"    "Gravity"
+## 
+## $featInstrument
+## [1] "Accelerometer" "Gyroscope"    
+## 
+## $featJerk
+## [1] "Jerk"
+## 
+## $featMagnitude
+## [1] "Magnitude"
+## 
+## $featVariable
+## [1] "Mean" "SD"  
+## 
+## $featAxis
+## [1] "X" "Y" "Z"
+```
+
+```r
+sapply(d1[, sapply(d1, is.factor), with = FALSE], levels)
+```
+
+```
+## named list()
+```
+
+```r
+sapply(d2[, sapply(d2, is.factor), with = FALSE], levels)
+```
+
+```
+## named list()
+```
+
+```r
+sapply(d3[, sapply(d3, is.factor), with = FALSE], levels)
+```
+
+```
+##       X                                
+##  [1,] "fBodyAcc-mean()-X"              
+##  [2,] "fBodyAcc-mean()-Y"              
+##  [3,] "fBodyAcc-mean()-Z"              
+##  [4,] "fBodyAcc-meanFreq()-X"          
+##  [5,] "fBodyAcc-meanFreq()-Y"          
+##  [6,] "fBodyAcc-meanFreq()-Z"          
+##  [7,] "fBodyAcc-std()-X"               
+##  [8,] "fBodyAcc-std()-Y"               
+##  [9,] "fBodyAcc-std()-Z"               
+## [10,] "fBodyAccJerk-mean()-X"          
+## [11,] "fBodyAccJerk-mean()-Y"          
+## [12,] "fBodyAccJerk-mean()-Z"          
+## [13,] "fBodyAccJerk-meanFreq()-X"      
+## [14,] "fBodyAccJerk-meanFreq()-Y"      
+## [15,] "fBodyAccJerk-meanFreq()-Z"      
+## [16,] "fBodyAccJerk-std()-X"           
+## [17,] "fBodyAccJerk-std()-Y"           
+## [18,] "fBodyAccJerk-std()-Z"           
+## [19,] "fBodyAccMag-mean()"             
+## [20,] "fBodyAccMag-meanFreq()"         
+## [21,] "fBodyAccMag-std()"              
+## [22,] "fBodyBodyAccJerkMag-mean()"     
+## [23,] "fBodyBodyAccJerkMag-meanFreq()" 
+## [24,] "fBodyBodyAccJerkMag-std()"      
+## [25,] "fBodyBodyGyroJerkMag-mean()"    
+## [26,] "fBodyBodyGyroJerkMag-meanFreq()"
+## [27,] "fBodyBodyGyroJerkMag-std()"     
+## [28,] "fBodyBodyGyroMag-mean()"        
+## [29,] "fBodyBodyGyroMag-meanFreq()"    
+## [30,] "fBodyBodyGyroMag-std()"         
+## [31,] "fBodyGyro-mean()-X"             
+## [32,] "fBodyGyro-mean()-Y"             
+## [33,] "fBodyGyro-mean()-Z"             
+## [34,] "fBodyGyro-meanFreq()-X"         
+## [35,] "fBodyGyro-meanFreq()-Y"         
+## [36,] "fBodyGyro-meanFreq()-Z"         
+## [37,] "fBodyGyro-std()-X"              
+## [38,] "fBodyGyro-std()-Y"              
+## [39,] "fBodyGyro-std()-Z"              
+## [40,] "tBodyAcc-mean()-X"              
+## [41,] "tBodyAcc-mean()-Y"              
+## [42,] "tBodyAcc-mean()-Z"              
+## [43,] "tBodyAcc-std()-X"               
+## [44,] "tBodyAcc-std()-Y"               
+## [45,] "tBodyAcc-std()-Z"               
+## [46,] "tBodyAccJerk-mean()-X"          
+## [47,] "tBodyAccJerk-mean()-Y"          
+## [48,] "tBodyAccJerk-mean()-Z"          
+## [49,] "tBodyAccJerk-std()-X"           
+## [50,] "tBodyAccJerk-std()-Y"           
+## [51,] "tBodyAccJerk-std()-Z"           
+## [52,] "tBodyAccJerkMag-mean()"         
+## [53,] "tBodyAccJerkMag-std()"          
+## [54,] "tBodyAccMag-mean()"             
+## [55,] "tBodyAccMag-std()"              
+## [56,] "tBodyGyro-mean()-X"             
+## [57,] "tBodyGyro-mean()-Y"             
+## [58,] "tBodyGyro-mean()-Z"             
+## [59,] "tBodyGyro-std()-X"              
+## [60,] "tBodyGyro-std()-Y"              
+## [61,] "tBodyGyro-std()-Z"              
+## [62,] "tBodyGyroJerk-mean()-X"         
+## [63,] "tBodyGyroJerk-mean()-Y"         
+## [64,] "tBodyGyroJerk-mean()-Z"         
+## [65,] "tBodyGyroJerk-std()-X"          
+## [66,] "tBodyGyroJerk-std()-Y"          
+## [67,] "tBodyGyroJerk-std()-Z"          
+## [68,] "tBodyGyroJerkMag-mean()"        
+## [69,] "tBodyGyroJerkMag-std()"         
+## [70,] "tBodyGyroMag-mean()"            
+## [71,] "tBodyGyroMag-std()"             
+## [72,] "tGravityAcc-mean()-X"           
+## [73,] "tGravityAcc-mean()-Y"           
+## [74,] "tGravityAcc-mean()-Z"           
+## [75,] "tGravityAcc-std()-X"            
+## [76,] "tGravityAcc-std()-Y"            
+## [77,] "tGravityAcc-std()-Z"            
+## [78,] "tGravityAccMag-mean()"          
+## [79,] "tGravityAccMag-std()"
+```
+
+```r
+sapply(d4[, sapply(d4, is.factor), with = FALSE], levels)
+```
+
+```
+##      activity            
+## [1,] "LAYING"            
+## [2,] "SITTING"           
+## [3,] "STANDING"          
+## [4,] "WALKING"           
+## [5,] "WALKING_DOWNSTAIRS"
+## [6,] "WALKING_UPSTAIRS"
+```
+
+
+
+Find a particular value
+-----------------------
+Find record for
+
+* Subject: 1
+* Activity: laying
+* Domain: time
+* Acceleration: body
+* Instrument: accelerometer
+* Jerk: NA
+* Magnitude: NA
+* Variable: mean
+* Axis: X
+
+
+```r
+d0[subject == 1 & activity == "LAYING" & featDomain == "Time" & featAcceleration == 
+    "Body" & featInstrument == "Accelerometer" & is.na(featJerk) & is.na(featMagnitude) & 
+    featVariable == "Mean" & featAxis == "X"]
+```
+
+```
+##    subject activity featDomain featAcceleration featInstrument featJerk
+## 1:       1   LAYING       Time             Body  Accelerometer       NA
+##    featMagnitude featVariable featAxis count average
+## 1:            NA         Mean        X    50  0.2216
+```
+
+```r
+d1[, tBodyAcc.mean.X]
+```
+
+```
+##   [1] 0.2216 0.2612 0.2789 0.2773 0.2892 0.2555 0.2802 0.2706 0.2767 0.2786
+##  [11] 0.2904 0.2671 0.2806 0.2766 0.2777 0.2718 0.2916 0.2638 0.2601 0.2750
+##  [21] 0.2774 0.2771 0.2815 0.2730 0.2767 0.2743 0.2778 0.2759 0.2949 0.2582
+##  [31] 0.2333 0.2800 0.2805 0.2720 0.2934 0.2624 0.2895 0.2729 0.2789 0.2739
+##  [41] 0.2802 0.2702 0.2742 0.2808 0.2835 0.2760 0.2956 0.2560 0.2698 0.2774
+##  [51] 0.2779 0.2723 0.2939 0.2526 0.2747 0.2773 0.2785 0.2739 0.2884 0.2654
+##  [61] 0.2727 0.2738 0.2782 0.2739 0.2627 0.2421 0.2814 0.2771 0.2779 0.2764
+##  [71] 0.2776 0.2472 0.2395 0.2780 0.2781 0.2726 0.2961 0.2521 0.2713 0.2775
+##  [81] 0.2770 0.2792 0.3015 0.2652 0.2800 0.2736 0.2791 0.2789 0.2845 0.2484
+##  [91] 0.2740 0.2734 0.2779 0.2732 0.2899 0.2500 0.2729 0.2735 0.2803 0.2770
+## [101] 0.2886 0.2699 0.2508 0.2785 0.2780 0.2790 0.2913 0.2780 0.2716 0.2582
+## [111] 0.2811 0.2793 0.2793 0.2727 0.2741 0.2739 0.2796 0.2768 0.2975 0.2658
+## [121] 0.2759 0.2770 0.2778 0.2812 0.2936 0.2620 0.2873 0.2772 0.2780 0.2720
+## [131] 0.2931 0.2654 0.2755 0.2572 0.2800 0.2756 0.2924 0.2608 0.2810 0.2683
+## [141] 0.2771 0.2764 0.2832 0.2714 0.2636 0.2715 0.2805 0.2786 0.2800 0.2709
+## [151] 0.2783 0.2737 0.2825 0.2778 0.2935 0.2685 0.2487 0.2768 0.2803 0.2837
+## [161] 0.2770 0.2682 0.2502 0.2847 0.2827 0.2756 0.2803 0.2487 0.2613 0.2675
+## [171] 0.2796 0.2747 0.2835 0.2589 0.2592 0.2483 0.2823 0.2785 0.2959 0.2624
+```
+
+```r
+d2[subject_id == 1, list(subject_id, y_label, tBodyAcc_mean_X)]
+```
+
+```
+##       subject_id y_label tBodyAcc_mean_X
+##    1:          1       1          0.2820
+##    2:          1       1          0.2558
+##    3:          1       1          0.2549
+##    4:          1       1          0.3434
+##    5:          1       1          0.2762
+##   ---                                   
+## 1718:          1      24          0.2592
+## 1719:          1      24          0.2488
+## 1720:          1      24          0.2473
+## 1721:          1      24          0.2771
+## 1722:          1      24          0.2870
+```
+
+```r
+d3[X == "tBodyAcc-mean()-X", list(X, X1.LAYING)]
+```
+
+```
+##                    X X1.LAYING
+## 1: tBodyAcc-mean()-X    0.2216
+```
+
+```r
+d4[subject.id == 1 & activity == "LAYING", list(subject.id, activity, tBodyAcc.mean...X)]
+```
+
+```
+##    subject.id activity tBodyAcc.mean...X
+## 1:          1   LAYING            0.2216
+```
+
+
+For Student 1 and 2's tidy datasets, it's impossible to isolate the required record using the variables within the respective datasets.
+
+
+Sample observations in each dataset
+-----------------------------------
+
+
+```r
+head(d0)
 ```
 
 ```
@@ -81,101 +638,8 @@ head(dt0)
 ## 6:            NA           SD        Z    50 -0.90828
 ```
 
-
-
-Student 1
----------
-GitHub repository is https://github.com/sdrdis/getdata_peer_assessment.
-
-Read in tidy dataset.
-
-
 ```r
-url <- "https://s3.amazonaws.com/coursera-uploads/user-da581c348504652cf6d52b48/972080/asst-3/320c2dc0ce3e11e3bb7387f31f11f941.txt"
-dt1 <- data.table(read.table(url, header = TRUE))
-```
-
-
-Get structure of the dataset.
-
-
-```r
-str(dt1)
-```
-
-```
-## Classes 'data.table' and 'data.frame':	180 obs. of  66 variables:
-##  $ tBodyAcc.mean.X          : num  0.222 0.261 0.279 0.277 0.289 ...
-##  $ tBodyAcc.mean.Y          : num  -0.04051 -0.00131 -0.01614 -0.01738 -0.00992 ...
-##  $ tBodyAcc.mean.Z          : num  -0.113 -0.105 -0.111 -0.111 -0.108 ...
-##  $ tBodyAcc.std.X           : num  -0.928 -0.977 -0.996 -0.284 0.03 ...
-##  $ tBodyAcc.std.Y           : num  -0.8368 -0.9226 -0.9732 0.1145 -0.0319 ...
-##  $ tBodyAcc.std.Z           : num  -0.826 -0.94 -0.98 -0.26 -0.23 ...
-##  $ tGravityAcc.mean.X       : num  -0.249 0.832 0.943 0.935 0.932 ...
-##  $ tGravityAcc.mean.Y       : num  0.706 0.204 -0.273 -0.282 -0.267 ...
-##  $ tGravityAcc.mean.Z       : num  0.4458 0.332 0.0135 -0.0681 -0.0621 ...
-##  $ tGravityAcc.std.X        : num  -0.897 -0.968 -0.994 -0.977 -0.951 ...
-##  $ tGravityAcc.std.Y        : num  -0.908 -0.936 -0.981 -0.971 -0.937 ...
-##  $ tGravityAcc.std.Z        : num  -0.852 -0.949 -0.976 -0.948 -0.896 ...
-##  $ tBodyAccJerk.mean.X      : num  0.0811 0.0775 0.0754 0.074 0.0542 ...
-##  $ tBodyAccJerk.mean.Y      : num  0.003838 -0.000619 0.007976 0.028272 0.02965 ...
-##  $ tBodyAccJerk.mean.Z      : num  0.01083 -0.00337 -0.00369 -0.00417 -0.01097 ...
-##  $ tBodyAccJerk.std.X       : num  -0.9585 -0.9864 -0.9946 -0.1136 -0.0123 ...
-##  $ tBodyAccJerk.std.Y       : num  -0.924 -0.981 -0.986 0.067 -0.102 ...
-##  $ tBodyAccJerk.std.Z       : num  -0.955 -0.988 -0.992 -0.503 -0.346 ...
-##  $ tBodyGyro.mean.X         : num  -0.0166 -0.0454 -0.024 -0.0418 -0.0351 ...
-##  $ tBodyGyro.mean.Y         : num  -0.0645 -0.0919 -0.0594 -0.0695 -0.0909 ...
-##  $ tBodyGyro.mean.Z         : num  0.1487 0.0629 0.0748 0.0849 0.0901 ...
-##  $ tBodyGyro.std.X          : num  -0.874 -0.977 -0.987 -0.474 -0.458 ...
-##  $ tBodyGyro.std.Y          : num  -0.9511 -0.9665 -0.9877 -0.0546 -0.1263 ...
-##  $ tBodyGyro.std.Z          : num  -0.908 -0.941 -0.981 -0.344 -0.125 ...
-##  $ tBodyGyroJerk.mean.X     : num  -0.1073 -0.0937 -0.0996 -0.09 -0.074 ...
-##  $ tBodyGyroJerk.mean.Y     : num  -0.0415 -0.0402 -0.0441 -0.0398 -0.044 ...
-##  $ tBodyGyroJerk.mean.Z     : num  -0.0741 -0.0467 -0.049 -0.0461 -0.027 ...
-##  $ tBodyGyroJerk.std.X      : num  -0.919 -0.992 -0.993 -0.207 -0.487 ...
-##  $ tBodyGyroJerk.std.Y      : num  -0.968 -0.99 -0.995 -0.304 -0.239 ...
-##  $ tBodyGyroJerk.std.Z      : num  -0.958 -0.988 -0.992 -0.404 -0.269 ...
-##  $ tBodyAccMag.mean         : num  -0.8419 -0.9485 -0.9843 -0.137 0.0272 ...
-##  $ tBodyAccMag.std          : num  -0.7951 -0.9271 -0.9819 -0.2197 0.0199 ...
-##  $ tGravityAccMag.mean      : num  -0.8419 -0.9485 -0.9843 -0.137 0.0272 ...
-##  $ tGravityAccMag.std       : num  -0.7951 -0.9271 -0.9819 -0.2197 0.0199 ...
-##  $ tBodyAccJerkMag.mean     : num  -0.9544 -0.9874 -0.9924 -0.1414 -0.0894 ...
-##  $ tBodyAccJerkMag.std      : num  -0.9282 -0.9841 -0.9931 -0.0745 -0.0258 ...
-##  $ tBodyGyroMag.mean        : num  -0.8748 -0.9309 -0.9765 -0.161 -0.0757 ...
-##  $ tBodyGyroMag.std         : num  -0.819 -0.935 -0.979 -0.187 -0.226 ...
-##  $ tBodyGyroJerkMag.mean    : num  -0.963 -0.992 -0.995 -0.299 -0.295 ...
-##  $ tBodyGyroJerkMag.std     : num  -0.936 -0.988 -0.995 -0.325 -0.307 ...
-##  $ fBodyAcc.mean.X          : num  -0.9391 -0.9796 -0.9952 -0.2028 0.0382 ...
-##  $ fBodyAcc.mean.Y          : num  -0.86707 -0.94408 -0.97707 0.08971 0.00155 ...
-##  $ fBodyAcc.mean.Z          : num  -0.883 -0.959 -0.985 -0.332 -0.226 ...
-##  $ fBodyAcc.std.X           : num  -0.9244 -0.9764 -0.996 -0.3191 0.0243 ...
-##  $ fBodyAcc.std.Y           : num  -0.834 -0.917 -0.972 0.056 -0.113 ...
-##  $ fBodyAcc.std.Z           : num  -0.813 -0.934 -0.978 -0.28 -0.298 ...
-##  $ fBodyAccJerk.mean.X      : num  -0.9571 -0.9866 -0.9946 -0.1705 -0.0277 ...
-##  $ fBodyAccJerk.mean.Y      : num  -0.9225 -0.9816 -0.9854 -0.0352 -0.1287 ...
-##  $ fBodyAccJerk.mean.Z      : num  -0.948 -0.986 -0.991 -0.469 -0.288 ...
-##  $ fBodyAccJerk.std.X       : num  -0.9642 -0.9875 -0.9951 -0.1336 -0.0863 ...
-##  $ fBodyAccJerk.std.Y       : num  -0.932 -0.983 -0.987 0.107 -0.135 ...
-##  $ fBodyAccJerk.std.Z       : num  -0.961 -0.988 -0.992 -0.535 -0.402 ...
-##  $ fBodyGyro.mean.X         : num  -0.85 -0.976 -0.986 -0.339 -0.352 ...
-##  $ fBodyGyro.mean.Y         : num  -0.9522 -0.9758 -0.989 -0.1031 -0.0557 ...
-##  $ fBodyGyro.mean.Z         : num  -0.9093 -0.9513 -0.9808 -0.2559 -0.0319 ...
-##  $ fBodyGyro.std.X          : num  -0.882 -0.978 -0.987 -0.517 -0.495 ...
-##  $ fBodyGyro.std.Y          : num  -0.9512 -0.9623 -0.9871 -0.0335 -0.1814 ...
-##  $ fBodyGyro.std.Z          : num  -0.917 -0.944 -0.982 -0.437 -0.238 ...
-##  $ fBodyAccMag.mean         : num  -0.8618 -0.9478 -0.9854 -0.1286 0.0966 ...
-##  $ fBodyAccMag.std          : num  -0.798 -0.928 -0.982 -0.398 -0.187 ...
-##  $ fBodyBodyAccJerkMag.mean : num  -0.9333 -0.9853 -0.9925 -0.0571 0.0262 ...
-##  $ fBodyBodyAccJerkMag.std  : num  -0.922 -0.982 -0.993 -0.103 -0.104 ...
-##  $ fBodyBodyGyroMag.mean    : num  -0.862 -0.958 -0.985 -0.199 -0.186 ...
-##  $ fBodyBodyGyroMag.std     : num  -0.824 -0.932 -0.978 -0.321 -0.398 ...
-##  $ fBodyBodyGyroJerkMag.mean: num  -0.942 -0.99 -0.995 -0.319 -0.282 ...
-##  $ fBodyBodyGyroJerkMag.std : num  -0.933 -0.987 -0.995 -0.382 -0.392 ...
-##  - attr(*, ".internal.selfref")=<externalptr>
-```
-
-```r
-head(dt1)
+head(d1)
 ```
 
 ```
@@ -321,103 +785,8 @@ head(dt1)
 ## 6:                  -0.6939
 ```
 
-
-
-Student 2
----------
-GitHub repository is https://github.com/alvasvoboda/PeerAssessment.
-
-Read in tidy dataset.
-
-
 ```r
-url <- "https://s3.amazonaws.com/coursera-uploads/user-cd5fa9234072b2113411a5b6/972080/asst-3/45e306b0ce6211e38f91f1adc287d0b7.txt"
-dt2 <- data.table(read.table(url, header = TRUE))
-```
-
-
-Get structure of the dataset.
-
-
-```r
-str(dt2)
-```
-
-```
-## Classes 'data.table' and 'data.frame':	10299 obs. of  68 variables:
-##  $ tBodyAcc_mean_X          : num  0.289 0.278 0.28 0.279 0.277 ...
-##  $ tBodyAcc_mean_Y          : num  -0.0203 -0.0164 -0.0195 -0.0262 -0.0166 ...
-##  $ tBodyAcc_mean_Z          : num  -0.133 -0.124 -0.113 -0.123 -0.115 ...
-##  $ tBodyAcc_std_X           : num  -0.995 -0.998 -0.995 -0.996 -0.998 ...
-##  $ tBodyAcc_std_Y           : num  -0.983 -0.975 -0.967 -0.983 -0.981 ...
-##  $ tBodyAcc_std_Z           : num  -0.914 -0.96 -0.979 -0.991 -0.99 ...
-##  $ tGravityAcc_mean_X       : num  0.963 0.967 0.967 0.968 0.968 ...
-##  $ tGravityAcc_mean_Y       : num  -0.141 -0.142 -0.142 -0.144 -0.149 ...
-##  $ tGravityAcc_mean_Z       : num  0.1154 0.1094 0.1019 0.0999 0.0945 ...
-##  $ tGravityAcc_std_X        : num  -0.985 -0.997 -1 -0.997 -0.998 ...
-##  $ tGravityAcc_std_Y        : num  -0.982 -0.989 -0.993 -0.981 -0.988 ...
-##  $ tGravitybodyAcc_std_Z    : num  -0.878 -0.932 -0.993 -0.978 -0.979 ...
-##  $ tBodyAccJerk_mean_X      : num  0.078 0.074 0.0736 0.0773 0.0734 ...
-##  $ tBodyAccJerk_mean_Y      : num  0.005 0.00577 0.0031 0.02006 0.01912 ...
-##  $ tBodyAccJerk_mean_Z      : num  -0.06783 0.02938 -0.00905 -0.00986 0.01678 ...
-##  $ tBodyAccJerk_std_X       : num  -0.994 -0.996 -0.991 -0.993 -0.996 ...
-##  $ tBodyAccJerk_std_Y       : num  -0.988 -0.981 -0.981 -0.988 -0.988 ...
-##  $ tBodyAccJerk_std_Z       : num  -0.994 -0.992 -0.99 -0.993 -0.992 ...
-##  $ tBodyGyro_mean_X         : num  -0.0061 -0.0161 -0.0317 -0.0434 -0.034 ...
-##  $ tBodyGyro_mean_Y         : num  -0.0314 -0.0839 -0.1023 -0.0914 -0.0747 ...
-##  $ tBodyGyro_mean_Z         : num  0.1077 0.1006 0.0961 0.0855 0.0774 ...
-##  $ tBodyGyro_std_X          : num  -0.985 -0.983 -0.976 -0.991 -0.985 ...
-##  $ tBodyGyro_std_Y          : num  -0.977 -0.989 -0.994 -0.992 -0.992 ...
-##  $ tBodyGyro_std_Z          : num  -0.992 -0.989 -0.986 -0.988 -0.987 ...
-##  $ tBodyGyroJerk_mean_X     : num  -0.0992 -0.1105 -0.1085 -0.0912 -0.0908 ...
-##  $ tBodyGyroJerk_mean_Y     : num  -0.0555 -0.0448 -0.0424 -0.0363 -0.0376 ...
-##  $ tBodyGyroJerk_mean_Z     : num  -0.062 -0.0592 -0.0558 -0.0605 -0.0583 ...
-##  $ tBodyGyroJerk_std_X      : num  -0.992 -0.99 -0.988 -0.991 -0.991 ...
-##  $ tBodyGyroJerk_std_Y      : num  -0.993 -0.997 -0.996 -0.997 -0.996 ...
-##  $ tBodyGyroJerk_std_Z      : num  -0.992 -0.994 -0.992 -0.993 -0.995 ...
-##  $ tBodyAccMag_mean         : num  -0.959 -0.979 -0.984 -0.987 -0.993 ...
-##  $ tBodyAccMag_std          : num  -0.951 -0.976 -0.988 -0.986 -0.991 ...
-##  $ tGravityAccMag_mean      : num  -0.959 -0.979 -0.984 -0.987 -0.993 ...
-##  $ tGravityAccMag_std       : num  -0.951 -0.976 -0.988 -0.986 -0.991 ...
-##  $ tBodyAccJerkMag_mean     : num  -0.993 -0.991 -0.989 -0.993 -0.993 ...
-##  $ tBodyAccJerkMag_std      : num  -0.994 -0.992 -0.99 -0.993 -0.996 ...
-##  $ tBodyGyroMag_mean        : num  -0.969 -0.981 -0.976 -0.982 -0.985 ...
-##  $ tBodyGyroMag_std         : num  -0.964 -0.984 -0.986 -0.987 -0.989 ...
-##  $ tBodyGyroJerkMag_mean    : num  -0.994 -0.995 -0.993 -0.996 -0.996 ...
-##  $ tBodyGyroJerkMag_std     : num  -0.991 -0.996 -0.995 -0.995 -0.995 ...
-##  $ fBodyAcc_mean_X          : num  -0.995 -0.997 -0.994 -0.995 -0.997 ...
-##  $ fBodyAcc_mean_Y          : num  -0.983 -0.977 -0.973 -0.984 -0.982 ...
-##  $ fBodyAcc_mean_Z          : num  -0.939 -0.974 -0.983 -0.991 -0.988 ...
-##  $ fBodyAcc_std_X           : num  -0.995 -0.999 -0.996 -0.996 -0.999 ...
-##  $ fBodyAcc_std_Y           : num  -0.983 -0.975 -0.966 -0.983 -0.98 ...
-##  $ fBodyAcc_std_Z           : num  -0.906 -0.955 -0.977 -0.99 -0.992 ...
-##  $ fBodyAccJerk_mean_X      : num  -0.992 -0.995 -0.991 -0.994 -0.996 ...
-##  $ fBodyAccJerk_mean_Y      : num  -0.987 -0.981 -0.982 -0.989 -0.989 ...
-##  $ fBodyAccJerk_mean_Z      : num  -0.99 -0.99 -0.988 -0.991 -0.991 ...
-##  $ fBodyAccJerk_std_X       : num  -0.996 -0.997 -0.991 -0.991 -0.997 ...
-##  $ fBodyAccJerk_std_Y       : num  -0.991 -0.982 -0.981 -0.987 -0.989 ...
-##  $ fBodyAccJerk_std_Z       : num  -0.997 -0.993 -0.99 -0.994 -0.993 ...
-##  $ fBodyGyro_mean_X         : num  -0.987 -0.977 -0.975 -0.987 -0.982 ...
-##  $ fBodyGyro_mean_Y         : num  -0.982 -0.993 -0.994 -0.994 -0.993 ...
-##  $ fBodyGyro_mean_Z         : num  -0.99 -0.99 -0.987 -0.987 -0.989 ...
-##  $ fBodyGyro_std_X          : num  -0.985 -0.985 -0.977 -0.993 -0.986 ...
-##  $ fBodyGyro_std_Y          : num  -0.974 -0.987 -0.993 -0.992 -0.992 ...
-##  $ fBodyGyro_std_Z          : num  -0.994 -0.99 -0.987 -0.989 -0.988 ...
-##  $ fBodyAccMag_mean         : num  -0.952 -0.981 -0.988 -0.988 -0.994 ...
-##  $ fBodyAccMag_std          : num  -0.956 -0.976 -0.989 -0.987 -0.99 ...
-##  $ fBodyBodyAccJerkMag_mean : num  -0.994 -0.99 -0.989 -0.993 -0.996 ...
-##  $ fBodyBodyAccJerkMag_std  : num  -0.994 -0.992 -0.991 -0.992 -0.994 ...
-##  $ fBodyBodyGyroMag_mean    : num  -0.98 -0.988 -0.989 -0.989 -0.991 ...
-##  $ fBodyBodyGyroMag_std     : num  -0.961 -0.983 -0.986 -0.988 -0.989 ...
-##  $ fBodyBodyGyroJerkMag_mean: num  0.375 -0.72 -0.872 -0.511 -0.831 ...
-##  $ fBodyBodyGyroJerkMag_std : num  -0.992 -0.996 -0.995 -0.995 -0.995 ...
-##  $ y_label                  : int  1 1 1 1 1 1 1 1 1 1 ...
-##  $ subject_id               : int  5 5 5 5 5 5 5 5 5 5 ...
-##  - attr(*, ".internal.selfref")=<externalptr>
-```
-
-```r
-head(dt2)
+head(d2)
 ```
 
 ```
@@ -563,135 +932,8 @@ head(dt2)
 ## 6:                  -0.9951       1          5
 ```
 
-
-
-Student 3
----------
-GitHub repository is https://github.com/rafalohn/tidyData.
-
-Read in tidy dataset.
-
-
 ```r
-url <- "https://s3.amazonaws.com/coursera-uploads/user-86e8069e2ecc3248b76506ff/972080/asst-3/b00980a0ce5d11e39688c70635ebeff0.txt"
-dt3 <- data.table(read.csv(url))
-```
-
-
-Get structure of the dataset.
-
-
-```r
-str(dt3)
-```
-
-```
-## Classes 'data.table' and 'data.frame':	79 obs. of  127 variables:
-##  $ X                     : Factor w/ 79 levels "fBodyAcc-mean()-X",..: 40 41 42 43 44 45 72 73 74 75 ...
-##  $ X1.WALKING            : num  0.2773 -0.0174 -0.1111 -0.2837 0.1145 ...
-##  $ X3.WALKING            : num  0.2756 -0.0172 -0.1127 -0.3604 -0.0699 ...
-##  $ X5.WALKING            : num  0.2778 -0.0173 -0.1077 -0.2941 0.0767 ...
-##  $ X6.WALKING            : num  0.2837 -0.0169 -0.1103 -0.2965 0.1642 ...
-##  $ X7.WALKING            : num  0.2756 -0.0187 -0.1109 -0.3272 -0.0773 ...
-##  $ X8.WALKING            : num  0.2747 -0.0187 -0.1073 -0.1736 0.3808 ...
-##  $ X11.WALKING           : num  0.2718 -0.0166 -0.1061 -0.4228 -0.0522 ...
-##  $ X14.WALKING           : num  0.272 -0.0218 -0.1068 -0.4026 -0.0536 ...
-##  $ X15.WALKING           : num  0.2739 -0.0171 -0.1076 -0.328 0.1389 ...
-##  $ X16.WALKING           : num  0.276 -0.0204 -0.1088 -0.4047 -0.3146 ...
-##  $ X17.WALKING           : num  0.2723 -0.0185 -0.1098 -0.3195 -0.0176 ...
-##  $ X19.WALKING           : num  0.2739 -0.0192 -0.1227 -0.0489 0.1818 ...
-##  $ X21.WALKING           : num  0.2792 -0.0182 -0.1043 -0.2978 0.0541 ...
-##  $ X22.WALKING           : num  0.27886 -0.01672 -0.10711 -0.00866 0.10038 ...
-##  $ X23.WALKING           : num  0.2732 -0.0184 -0.1134 -0.3135 -0.119 ...
-##  $ X25.WALKING           : num  0.279 -0.0186 -0.1087 -0.596 -0.1619 ...
-##  $ X26.WALKING           : num  0.2793 -0.0154 -0.1089 -0.3402 -0.1364 ...
-##  $ X27.WALKING           : num  0.2768 -0.0166 -0.1128 -0.3485 -0.1873 ...
-##  $ X28.WALKING           : num  0.2812 -0.0157 -0.1037 -0.293 -0.1179 ...
-##  $ X29.WALKING           : num  0.272 -0.0163 -0.1066 -0.1743 -0.0918 ...
-##  $ X30.WALKING           : num  0.2764 -0.0176 -0.0986 -0.3464 -0.1736 ...
-##  $ X1.WALKING_UPSTAIRS   : num  0.25546 -0.02395 -0.0973 -0.35471 -0.00232 ...
-##  $ X3.WALKING_UPSTAIRS   : num  0.2608 -0.0324 -0.1101 -0.3131 0.0116 ...
-##  $ X5.WALKING_UPSTAIRS   : num  0.2685 -0.0325 -0.1075 -0.0457 0.185 ...
-##  $ X6.WALKING_UPSTAIRS   : num  0.2682 -0.0272 -0.1221 -0.0501 0.1893 ...
-##  $ X7.WALKING_UPSTAIRS   : num  0.2487 -0.0276 -0.1438 -0.2949 -0.3262 ...
-##  $ X8.WALKING_UPSTAIRS   : num  0.2589 -0.0282 -0.1151 -0.1717 0.3488 ...
-##  $ X11.WALKING_UPSTAIRS  : num  0.2638 -0.0303 -0.1068 -0.2388 -0.1032 ...
-##  $ X14.WALKING_UPSTAIRS  : num  0.2624 -0.0204 -0.1123 -0.3094 0.3072 ...
-##  $ X15.WALKING_UPSTAIRS  : num  0.27019 -0.02875 -0.11695 -0.0261 -0.00407 ...
-##  $ X16.WALKING_UPSTAIRS  : num  0.256 -0.0144 -0.1241 -0.3971 -0.1637 ...
-##  $ X17.WALKING_UPSTAIRS  : num  0.2526 -0.0229 -0.1213 -0.063 -0.0132 ...
-##  $ X19.WALKING_UPSTAIRS  : num  0.2421 -0.0304 -0.1511 -0.1287 0.1763 ...
-##  $ X21.WALKING_UPSTAIRS  : num  0.2652 -0.0237 -0.1254 -0.2408 0.1098 ...
-##  $ X22.WALKING_UPSTAIRS  : num  0.2484 -0.0269 -0.1176 0.0836 0.2501 ...
-##  $ X23.WALKING_UPSTAIRS  : num  0.25 -0.0324 -0.1269 -0.2439 0.0448 ...
-##  $ X25.WALKING_UPSTAIRS  : num  0.278 -0.027 -0.126 -0.46 -0.223 ...
-##  $ X26.WALKING_UPSTAIRS  : num  0.2727 -0.0282 -0.1219 -0.169 -0.0492 ...
-##  $ X27.WALKING_UPSTAIRS  : num  0.2658 -0.0201 -0.1235 -0.2954 -0.095 ...
-##  $ X28.WALKING_UPSTAIRS  : num  0.262 -0.0279 -0.1215 -0.2421 -0.1468 ...
-##  $ X29.WALKING_UPSTAIRS  : num  0.2654 -0.0299 -0.118 -0.0868 -0.1221 ...
-##  $ X30.WALKING_UPSTAIRS  : num  0.2714 -0.0253 -0.1247 -0.3505 -0.1273 ...
-##  $ X1.WALKING_DOWNSTAIRS : num  0.28919 -0.00992 -0.10757 0.03004 -0.03194 ...
-##  $ X3.WALKING_DOWNSTAIRS : num  0.2924 -0.0194 -0.1161 -0.0574 -0.0332 ...
-##  $ X5.WALKING_DOWNSTAIRS : num  0.2935 -0.0085 -0.1003 0.275 0.0908 ...
-##  $ X6.WALKING_DOWNSTAIRS : num  0.277 -0.0195 -0.1072 0.3837 0.3602 ...
-##  $ X7.WALKING_DOWNSTAIRS : num  0.2803 -0.0166 -0.0969 0.0661 -0.1382 ...
-##  $ X8.WALKING_DOWNSTAIRS : num  0.2835 -0.0211 -0.1076 0.0241 0.3438 ...
-##  $ X11.WALKING_DOWNSTAIRS: num  0.2916 -0.0178 -0.1111 0.1425 0.0708 ...
-##  $ X14.WALKING_DOWNSTAIRS: num  0.2934 -0.02 -0.0928 0.0178 0.3789 ...
-##  $ X15.WALKING_DOWNSTAIRS: num  0.2802 -0.00563 -0.11053 0.40647 0.18653 ...
-##  $ X16.WALKING_DOWNSTAIRS: num  0.2956 -0.0184 -0.1199 0.2073 -0.147 ...
-##  $ X17.WALKING_DOWNSTAIRS: num  0.2939 -0.0167 -0.0892 0.1877 -0.0608 ...
-##  $ X19.WALKING_DOWNSTAIRS: num  0.2627 -0.0146 -0.1337 0.6269 0.5148 ...
-##  $ X21.WALKING_DOWNSTAIRS: num  0.3015 -0.0173 -0.0982 0.2243 0.3013 ...
-##  $ X22.WALKING_DOWNSTAIRS: num  0.2845 -0.0198 -0.1074 0.3486 0.2398 ...
-##  $ X23.WALKING_DOWNSTAIRS: num  0.2899 -0.0162 -0.0988 0.0441 0.1083 ...
-##  $ X25.WALKING_DOWNSTAIRS: num  0.291 -0.021 -0.107 -0.254 -0.141 ...
-##  $ X26.WALKING_DOWNSTAIRS: num  0.2793 -0.0126 -0.1064 0.174 -0.0116 ...
-##  $ X27.WALKING_DOWNSTAIRS: num  0.2975 -0.0136 -0.1128 0.1674 -0.098 ...
-##  $ X28.WALKING_DOWNSTAIRS: num  0.294 -0.022 -0.109 0.126 0.156 ...
-##  $ X29.WALKING_DOWNSTAIRS: num  0.2931 -0.0149 -0.0981 0.1674 -0.1225 ...
-##  $ X30.WALKING_DOWNSTAIRS: num  0.2832 -0.0174 -0.1 -0.0578 -0.0273 ...
-##  $ X1.SITTING            : num  0.26124 -0.00131 -0.10454 -0.97723 -0.92262 ...
-##  $ X3.SITTING            : num  0.2572 -0.0035 -0.0984 -0.971 -0.8566 ...
-##  $ X5.SITTING            : num  0.2737 -0.0099 -0.1085 -0.9809 -0.9043 ...
-##  $ X6.SITTING            : num  0.2768 -0.0146 -0.1101 -0.9802 -0.9237 ...
-##  $ X7.SITTING            : num  0.2847 -0.0146 -0.1225 -0.9727 -0.9095 ...
-##  $ X8.SITTING            : num  0.26749 -0.00673 -0.10446 -0.97903 -0.92733 ...
-##  $ X11.SITTING           : num  0.2766 -0.0149 -0.1128 -0.9828 -0.9214 ...
-##  $ X14.SITTING           : num  0.27999 -0.00871 -0.1004 -0.9763 -0.91494 ...
-##  $ X15.SITTING           : num  0.2729 -0.0117 -0.1137 -0.9871 -0.9224 ...
-##  $ X16.SITTING           : num  0.2808 -0.0102 -0.0891 -0.9868 -0.9516 ...
-##  $ X17.SITTING           : num  0.2774 -0.0142 -0.1136 -0.9944 -0.9619 ...
-##  $ X19.SITTING           : num  0.2738 -0.0167 -0.1087 -0.9764 -0.9504 ...
-##  $ X21.SITTING           : num  0.2775 -0.0144 -0.1121 -0.9918 -0.9669 ...
-##  $ X22.SITTING           : num  0.2736 -0.0123 -0.1058 -0.9785 -0.9281 ...
-##  $ X23.SITTING           : num  0.2734 -0.0134 -0.1038 -0.9876 -0.9349 ...
-##  $ X25.SITTING           : num  0.2785 -0.0148 -0.1092 -0.9919 -0.9475 ...
-##  $ X26.SITTING           : num  0.25824 -0.00713 -0.09744 -0.97977 -0.9408 ...
-##  $ X27.SITTING           : num  0.2739 -0.0155 -0.1055 -0.9886 -0.9716 ...
-##  $ X28.SITTING           : num  0.277 -0.0185 -0.1115 -0.9833 -0.9399 ...
-##  $ X29.SITTING           : num  0.2772 -0.0166 -0.1104 -0.9907 -0.9632 ...
-##  $ X30.SITTING           : num  0.26834 -0.00805 -0.09952 -0.98362 -0.93786 ...
-##  $ X1.STANDING           : num  0.2789 -0.0161 -0.1106 -0.9958 -0.9732 ...
-##  $ X3.STANDING           : num  0.28 -0.0143 -0.1016 -0.9667 -0.8934 ...
-##  $ X5.STANDING           : num  0.283 -0.007 -0.102 -0.969 -0.869 ...
-##  $ X6.STANDING           : num  0.2803 -0.0181 -0.1122 -0.9818 -0.9215 ...
-##  $ X7.STANDING           : num  0.2827 -0.0146 -0.0998 -0.9793 -0.9234 ...
-##  $ X8.STANDING           : num  0.2796 -0.0148 -0.1061 -0.9888 -0.9385 ...
-##  $ X11.STANDING          : num  0.2777 -0.0172 -0.1087 -0.995 -0.9642 ...
-##  $ X14.STANDING          : num  0.2805 -0.0152 -0.1038 -0.9733 -0.9285 ...
-##  $ X15.STANDING          : num  0.2789 -0.0184 -0.1059 -0.9889 -0.9319 ...
-##  $ X16.STANDING          : num  0.2835 -0.0166 -0.1037 -0.9891 -0.9603 ...
-##  $ X17.STANDING          : num  0.2779 -0.0174 -0.1114 -0.9912 -0.9682 ...
-##  $ X19.STANDING          : num  0.2782 -0.0154 -0.109 -0.9899 -0.9444 ...
-##  $ X21.STANDING          : num  0.277 -0.0167 -0.1104 -0.9814 -0.9436 ...
-##  $ X22.STANDING          : num  0.2791 -0.0159 -0.105 -0.985 -0.9227 ...
-##   [list output truncated]
-##  - attr(*, ".internal.selfref")=<externalptr>
-```
-
-```r
-head(dt3)
+head(d3)
 ```
 
 ```
@@ -900,116 +1142,8 @@ head(dt3)
 ## 6:   -0.71726   -0.98450   -0.98664   -0.95645    -0.9873   -0.96704
 ```
 
-
-
-Student 4
----------
-GitHub repository is https://github.com/glynn/GACD_PeerAssessment.
-
-Read in tidy dataset.
-
-
 ```r
-url <- "https://s3.amazonaws.com/coursera-uploads/user-bd605606b2bf83039906529c/972080/asst-3/1cf35bf0ce3b11e3a98a0101a16d1137.txt"
-dt4 <- data.table(read.table(url, header = TRUE))
-```
-
-
-Get structure of the dataset.
-
-
-```r
-str(dt4)
-```
-
-```
-## Classes 'data.table' and 'data.frame':	180 obs. of  81 variables:
-##  $ subject.id                     : int  1 2 3 4 5 6 7 8 9 10 ...
-##  $ activity                       : Factor w/ 6 levels "LAYING","SITTING",..: 4 4 4 4 4 4 4 4 4 4 ...
-##  $ tBodyAcc.mean...X              : num  0.277 0.276 0.276 0.279 0.278 ...
-##  $ tBodyAcc.mean...Y              : num  -0.0174 -0.0186 -0.0172 -0.0148 -0.0173 ...
-##  $ tBodyAcc.mean...Z              : num  -0.111 -0.106 -0.113 -0.111 -0.108 ...
-##  $ tBodyAcc.std...X               : num  -0.284 -0.424 -0.36 -0.441 -0.294 ...
-##  $ tBodyAcc.std...Y               : num  0.1145 -0.0781 -0.0699 -0.0788 0.0767 ...
-##  $ tBodyAcc.std...Z               : num  -0.26 -0.425 -0.387 -0.586 -0.457 ...
-##  $ tGravityAcc.mean...X           : num  0.935 0.913 0.937 0.964 0.973 ...
-##  $ tGravityAcc.mean...Y           : num  -0.2822 -0.3466 -0.262 -0.0859 -0.1004 ...
-##  $ tGravityAcc.mean...Z           : num  -0.0681 0.08473 -0.13811 0.12776 0.00248 ...
-##  $ tGravityAcc.std...X            : num  -0.977 -0.973 -0.978 -0.984 -0.979 ...
-##  $ tGravityAcc.std...Y            : num  -0.971 -0.972 -0.962 -0.968 -0.962 ...
-##  $ tGravityAcc.std...Z            : num  -0.948 -0.972 -0.952 -0.963 -0.965 ...
-##  $ tBodyAccJerk.mean...X          : num  0.074 0.0618 0.0815 0.0784 0.0846 ...
-##  $ tBodyAccJerk.mean...Y          : num  0.02827 0.01825 0.01006 0.00296 -0.01632 ...
-##  $ tBodyAccJerk.mean...Z          : num  -4.17e-03 7.90e-03 -5.62e-03 -7.68e-04 8.32e-05 ...
-##  $ tBodyAccJerk.std...X           : num  -0.114 -0.278 -0.269 -0.297 -0.303 ...
-##  $ tBodyAccJerk.std...Y           : num  0.067 -0.0166 -0.045 -0.2212 -0.091 ...
-##  $ tBodyAccJerk.std...Z           : num  -0.503 -0.586 -0.529 -0.751 -0.613 ...
-##  $ tBodyGyro.mean...X             : num  -0.0418 -0.053 -0.0256 -0.0318 -0.0489 ...
-##  $ tBodyGyro.mean...Y             : num  -0.0695 -0.0482 -0.0779 -0.0727 -0.069 ...
-##  $ tBodyGyro.mean...Z             : num  0.0849 0.0828 0.0813 0.0806 0.0815 ...
-##  $ tBodyGyro.std...X              : num  -0.474 -0.562 -0.572 -0.501 -0.491 ...
-##  $ tBodyGyro.std...Y              : num  -0.0546 -0.5385 -0.5638 -0.6654 -0.5046 ...
-##  $ tBodyGyro.std...Z              : num  -0.344 -0.481 -0.477 -0.663 -0.319 ...
-##  $ tBodyGyroJerk.mean...X         : num  -0.09 -0.0819 -0.0952 -0.1153 -0.0888 ...
-##  $ tBodyGyroJerk.mean...Y         : num  -0.0398 -0.0538 -0.0388 -0.0393 -0.045 ...
-##  $ tBodyGyroJerk.mean...Z         : num  -0.0461 -0.0515 -0.0504 -0.0551 -0.0483 ...
-##  $ tBodyGyroJerk.std...X          : num  -0.207 -0.39 -0.386 -0.492 -0.358 ...
-##  $ tBodyGyroJerk.std...Y          : num  -0.304 -0.634 -0.639 -0.807 -0.571 ...
-##  $ tBodyGyroJerk.std...Z          : num  -0.404 -0.435 -0.537 -0.64 -0.158 ...
-##  $ tBodyAccMag.mean..             : num  -0.137 -0.29 -0.255 -0.312 -0.158 ...
-##  $ tBodyAccMag.std..              : num  -0.22 -0.423 -0.328 -0.528 -0.377 ...
-##  $ tGravityAccMag.mean..          : num  -0.137 -0.29 -0.255 -0.312 -0.158 ...
-##  $ tGravityAccMag.std..           : num  -0.22 -0.423 -0.328 -0.528 -0.377 ...
-##  $ tBodyAccJerkMag.mean..         : num  -0.141 -0.281 -0.28 -0.367 -0.288 ...
-##  $ tBodyAccJerkMag.std..          : num  -0.0745 -0.1642 -0.1399 -0.3169 -0.2822 ...
-##  $ tBodyGyroMag.mean..            : num  -0.161 -0.447 -0.466 -0.498 -0.356 ...
-##  $ tBodyGyroMag.std..             : num  -0.187 -0.553 -0.562 -0.553 -0.492 ...
-##  $ tBodyGyroJerkMag.mean..        : num  -0.299 -0.548 -0.566 -0.681 -0.445 ...
-##  $ tBodyGyroJerkMag.std..         : num  -0.325 -0.558 -0.567 -0.73 -0.489 ...
-##  $ fBodyAcc.mean...X              : num  -0.203 -0.346 -0.317 -0.427 -0.288 ...
-##  $ fBodyAcc.mean...Y              : num  0.08971 -0.0219 -0.0813 -0.1494 0.00946 ...
-##  $ fBodyAcc.mean...Z              : num  -0.332 -0.454 -0.412 -0.631 -0.49 ...
-##  $ fBodyAcc.std...X               : num  -0.319 -0.458 -0.379 -0.447 -0.298 ...
-##  $ fBodyAcc.std...Y               : num  0.056 -0.1692 -0.124 -0.1018 0.0426 ...
-##  $ fBodyAcc.std...Z               : num  -0.28 -0.455 -0.423 -0.594 -0.483 ...
-##  $ fBodyAcc.meanFreq...X          : num  -0.208 -0.146 -0.247 -0.139 -0.322 ...
-##  $ fBodyAcc.meanFreq...Y          : num  0.11309 0.19859 0.17174 0.01235 -0.00204 ...
-##  $ fBodyAcc.meanFreq...Z          : num  0.0497 0.0689 0.0749 -0.0788 0.0247 ...
-##  $ fBodyAccJerk.mean...X          : num  -0.171 -0.305 -0.305 -0.359 -0.345 ...
-##  $ fBodyAccJerk.mean...Y          : num  -0.0352 -0.0788 -0.1405 -0.2796 -0.1811 ...
-##  $ fBodyAccJerk.mean...Z          : num  -0.469 -0.555 -0.514 -0.729 -0.59 ...
-##  $ fBodyAccJerk.std...X           : num  -0.134 -0.314 -0.297 -0.297 -0.321 ...
-##  $ fBodyAccJerk.std...Y           : num  0.10674 -0.01533 -0.00561 -0.2099 -0.05452 ...
-##  $ fBodyAccJerk.std...Z           : num  -0.535 -0.616 -0.544 -0.772 -0.633 ...
-##  $ fBodyAccJerk.meanFreq...X      : num  -0.2093 -0.0727 -0.216 -0.1353 -0.3594 ...
-##  $ fBodyAccJerk.meanFreq...Y      : num  -0.386 -0.264 -0.259 -0.386 -0.534 ...
-##  $ fBodyAccJerk.meanFreq...Z      : num  -0.186 -0.255 -0.347 -0.326 -0.344 ...
-##  $ fBodyGyro.mean...X             : num  -0.339 -0.43 -0.438 -0.373 -0.373 ...
-##  $ fBodyGyro.mean...Y             : num  -0.103 -0.555 -0.562 -0.688 -0.514 ...
-##  $ fBodyGyro.mean...Z             : num  -0.256 -0.397 -0.418 -0.601 -0.213 ...
-##  $ fBodyGyro.std...X              : num  -0.517 -0.604 -0.615 -0.543 -0.529 ...
-##  $ fBodyGyro.std...Y              : num  -0.0335 -0.533 -0.5689 -0.6547 -0.5027 ...
-##  $ fBodyGyro.std...Z              : num  -0.437 -0.56 -0.546 -0.716 -0.42 ...
-##  $ fBodyGyro.meanFreq...X         : num  0.01478 0.00728 0.03376 -0.12715 -0.04586 ...
-##  $ fBodyGyro.meanFreq...Y         : num  -0.0658 -0.0427 -0.038 -0.2747 -0.0192 ...
-##  $ fBodyGyro.meanFreq...Z         : num  0.000773 0.139752 -0.044508 0.149852 0.167458 ...
-##  $ fBodyAccMag.mean..             : num  -0.129 -0.324 -0.29 -0.451 -0.305 ...
-##  $ fBodyAccMag.std..              : num  -0.398 -0.577 -0.456 -0.651 -0.52 ...
-##  $ fBodyAccMag.meanFreq..         : num  0.191 0.393 0.113 0.382 0.15 ...
-##  $ fBodyBodyAccJerkMag.mean..     : num  -0.0571 -0.1691 -0.1868 -0.3186 -0.2695 ...
-##  $ fBodyBodyAccJerkMag.std..      : num  -0.1035 -0.1641 -0.0899 -0.3205 -0.3057 ...
-##  $ fBodyBodyAccJerkMag.meanFreq.. : num  0.09382 0.2075 -0.11716 0.11149 -0.00497 ...
-##  $ fBodyBodyGyroMag.mean..        : num  -0.199 -0.531 -0.57 -0.609 -0.484 ...
-##  $ fBodyBodyGyroMag.std..         : num  -0.321 -0.652 -0.633 -0.594 -0.59 ...
-##  $ fBodyBodyGyroMag.meanFreq..    : num  0.2688 0.3053 0.1809 0.0697 0.2506 ...
-##  $ fBodyBodyGyroJerkMag.mean..    : num  -0.319 -0.583 -0.608 -0.724 -0.548 ...
-##  $ fBodyBodyGyroJerkMag.std..     : num  -0.382 -0.558 -0.549 -0.758 -0.456 ...
-##  $ fBodyBodyGyroJerkMag.meanFreq..: num  0.1907 0.1263 0.0458 0.2654 0.0527 ...
-##  - attr(*, ".internal.selfref")=<externalptr>
-```
-
-```r
-head(dt4)
+head(d4)
 ```
 
 ```
